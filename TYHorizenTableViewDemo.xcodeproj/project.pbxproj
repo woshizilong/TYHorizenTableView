@@ -14,6 +14,8 @@
 		D3613EE61AFC8D7300ED71E1 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D3613EE51AFC8D7300ED71E1 /* Images.xcassets */; };
 		D3613EE91AFC8D7300ED71E1 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = D3613EE71AFC8D7300ED71E1 /* LaunchScreen.xib */; };
 		D3613EF51AFC8D7300ED71E1 /* TYHorizenTableViewDemoTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D3613EF41AFC8D7300ED71E1 /* TYHorizenTableViewDemoTests.m */; };
+		D3613F011AFC8DB500ED71E1 /* TYHorizenTableView.mm in Sources */ = {isa = PBXBuildFile; fileRef = D3613F001AFC8DB500ED71E1 /* TYHorizenTableView.mm */; };
+		D3613F041AFC8DF300ED71E1 /* TYHorizenTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = D3613F031AFC8DF300ED71E1 /* TYHorizenTableViewCell.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -40,6 +42,10 @@
 		D3613EEE1AFC8D7300ED71E1 /* TYHorizenTableViewDemoTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TYHorizenTableViewDemoTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		D3613EF31AFC8D7300ED71E1 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		D3613EF41AFC8D7300ED71E1 /* TYHorizenTableViewDemoTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TYHorizenTableViewDemoTests.m; sourceTree = "<group>"; };
+		D3613EFF1AFC8DB500ED71E1 /* TYHorizenTableView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TYHorizenTableView.h; sourceTree = "<group>"; };
+		D3613F001AFC8DB500ED71E1 /* TYHorizenTableView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = TYHorizenTableView.mm; sourceTree = "<group>"; };
+		D3613F021AFC8DF300ED71E1 /* TYHorizenTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TYHorizenTableViewCell.h; sourceTree = "<group>"; };
+		D3613F031AFC8DF300ED71E1 /* TYHorizenTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TYHorizenTableViewCell.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -81,6 +87,7 @@
 		D3613ED71AFC8D7300ED71E1 /* TYHorizenTableViewDemo */ = {
 			isa = PBXGroup;
 			children = (
+				D3613EFE1AFC8D8700ED71E1 /* TYHorizenTableView */,
 				D3613EDC1AFC8D7300ED71E1 /* AppDelegate.h */,
 				D3613EDD1AFC8D7300ED71E1 /* AppDelegate.m */,
 				D3613EDF1AFC8D7300ED71E1 /* ViewController.h */,
@@ -117,6 +124,17 @@
 				D3613EF31AFC8D7300ED71E1 /* Info.plist */,
 			);
 			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		D3613EFE1AFC8D8700ED71E1 /* TYHorizenTableView */ = {
+			isa = PBXGroup;
+			children = (
+				D3613EFF1AFC8DB500ED71E1 /* TYHorizenTableView.h */,
+				D3613F001AFC8DB500ED71E1 /* TYHorizenTableView.mm */,
+				D3613F021AFC8DF300ED71E1 /* TYHorizenTableViewCell.h */,
+				D3613F031AFC8DF300ED71E1 /* TYHorizenTableViewCell.m */,
+			);
+			path = TYHorizenTableView;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -220,7 +238,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				D3613EE11AFC8D7300ED71E1 /* ViewController.m in Sources */,
+				D3613F041AFC8DF300ED71E1 /* TYHorizenTableViewCell.m in Sources */,
 				D3613EDE1AFC8D7300ED71E1 /* AppDelegate.m in Sources */,
+				D3613F011AFC8DB500ED71E1 /* TYHorizenTableView.mm in Sources */,
 				D3613EDB1AFC8D7300ED71E1 /* main.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
