@@ -53,8 +53,6 @@ typedef enum {
 
 @end
 
-
-
 @interface TYHorizenTableView : UIScrollView
 
 @property (nonatomic, assign) id<TYHorizenTableViewDataSource>  dataSource;
@@ -81,6 +79,11 @@ typedef enum {
  *  取消选中 指定index cell
  */
 //- (void)deselectCellAtIndex:(NSInteger)index animated:(BOOL)animated;
+
+/**
+ *  获取index项cell,如果cell不可见返回nil
+ */
+- (TYHorizenTableViewCell *)cellForIndex:(NSInteger)index;
 
 /**
  *  重新读取数据

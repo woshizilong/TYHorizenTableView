@@ -28,7 +28,7 @@
 - (void)addHorizenTableView
 {
     TYHorizenTableView *horizonTableView = [[TYHorizenTableView alloc]initWithFrame:CGRectMake(0, 124, CGRectGetWidth(self.view.frame), 200)];
-    horizonTableView.cellSpacing = 20;
+    horizonTableView.cellSpacing = 16;
     horizonTableView.delegate = self;
     horizonTableView.dataSource = self;
     
@@ -72,7 +72,7 @@
 
 - (CGFloat)horizenTableView:(TYHorizenTableView *)horizenTableView widthForItemAtIndex:(NSInteger)index
 {
-    return 120+ arc4random()%60;
+    return 120 + arc4random()%60;
 }
 
 - (void)didReceiveMemoryWarning {

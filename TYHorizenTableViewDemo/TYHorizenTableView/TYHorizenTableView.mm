@@ -181,6 +181,7 @@
     self.contentSize = CGSizeMake(contentWidth, contentHeight);
 }
 
+// 布局可见cells
 - (void)layoutVisibleCells
 {
     NSRange visibleCellRange = [self getVisibleCellRange];
@@ -189,6 +190,7 @@
     if (NSEqualRanges(_visibleRange, visibleCellRange)) {
         return;
     }
+    _visibleRange = visibleCellRange;
 
     NSMutableArray *unVisibelCellKeys = [NSMutableArray arrayWithArray:[_visibleCells allKeys]];
     for (NSInteger index = visibleCellRange.location; index < NSMaxRange(visibleCellRange); ++index) {
@@ -220,59 +222,22 @@
     
 }
 
-
-- (void)enqueueCell:(TYHorizenTableViewCell*)cell atIndex:(NSNumber *)index
-{
-    NSMutableSet *set = [_reuseCells objectForKey:cell.identifier];
-    if (set == nil) {
-        set = [NSMutableSet set];
-        _reuseCells[cell.identifier] = set;
-    }
-    if (set.count < 2){
-        cell.index = -1;
-        cell.hidden = YES;
-        [set addObject:cell];
-    }else {
-        [cell removeFromSuperview];
-    }
-    
-    [_visibleCells removeObjectForKey:index];
-}
-
-- (void)addCell:(TYHorizenTableViewCell *)cell atIndex:(NSInteger)index
-{
-    cell.index = index;
-    CGRect cellFrame = _vecCellFrames[index];
-    [cell setFrame:cellFrame];
-    if (cell.superview != self) {
-        [cell removeFromSuperview];
-        [self addSubview:cell];
-    }else {
-        cell.hidden = NO;
-    }
-
-    _visibleCells[@(index)] = cell;
-}
-
-- (TYHorizenTableViewCell *)cellForIndex:(NSInteger)index
-{
-    return [_visibleCells objectForKey:@(index)];
-}
-
+// 获取可见cells的rang
 - (NSRange)getVisibleCellRange
 {
     BOOL isOverVisibleRect = NO; // 优化次数
     // 可见区域rect
-    CGRect visibleRect = {self.contentOffset,self.frame.size};
-    //CGRectMake(self.contentOffset.x, self.contentOffset.y, CGRectGetWidth(self.frame), CGRectGetHeight(self.frame));
+    CGFloat visibleOrignX = [self contentOffset].x;
+    CGFloat visibleEndX = visibleOrignX + CGRectGetWidth(self.frame);
     
     NSInteger startIndex = 0, endIndex = 0;
     NSInteger index = _visibleRange.location > 0 ? _visibleRange.location - 1:0;
     NSInteger count = _vecCellFrames.size();
     
-    for (; index < count; ++index) {
-        //CGRect cellRect = _vecCellFrames[index];
-        if (CGRectIntersectsRect(visibleRect,_vecCellFrames[index])) {
+    for (;index < count; ++index) {
+        const CGRect& cellRect = _vecCellFrames[index];
+        if (CGRectGetMaxX(cellRect) >= visibleOrignX
+            && cellRect.origin.x < visibleEndX) {
             // 在可见区域
             if (!isOverVisibleRect) {
                 startIndex = index;
@@ -289,6 +254,46 @@
     }
     
     return NSMakeRange(startIndex, endIndex - startIndex);
+}
+
+// 添加cell
+- (void)addCell:(TYHorizenTableViewCell *)cell atIndex:(NSInteger)index
+{
+    cell.index = index;
+    CGRect cellFrame = _vecCellFrames[index];
+    [cell setFrame:cellFrame];
+    if (cell.superview != self) {
+        [cell removeFromSuperview];
+        [self addSubview:cell];
+    }else {
+        cell.hidden = NO;
+    }
+    
+    _visibleCells[@(index)] = cell;
+}
+
+// 缓存cells
+- (void)enqueueCell:(TYHorizenTableViewCell*)cell atIndex:(NSNumber *)index
+{
+    NSMutableSet *set = [_reuseCells objectForKey:cell.identifier];
+    if (set == nil) {
+        set = [NSMutableSet setWithCapacity:2];
+        _reuseCells[cell.identifier] = set;
+    }
+    if (set.count < 2){
+        cell.index = -1;
+        cell.hidden = YES;
+        [set addObject:cell];
+    }else {
+        [cell removeFromSuperview];
+    }
+    
+    [_visibleCells removeObjectForKey:index];
+}
+
+- (TYHorizenTableViewCell *)cellForIndex:(NSInteger)index
+{
+    return [_visibleCells objectForKey:@(index)];
 }
 
 - (void)singleTapGesture:(UITapGestureRecognizer *)sender
@@ -324,7 +329,6 @@
 {
     //[super layoutSubviews];
     [self layoutVisibleCells];
-
     
 //    NSMutableSet *set = _reuseCells[@"cell"];
 //    NSLog(@"visible cell num:%ld",_visibleCells.count);
