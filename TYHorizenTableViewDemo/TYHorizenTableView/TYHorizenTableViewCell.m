@@ -31,7 +31,7 @@
 
 - (void)setSelected:(BOOL)selected animated:(BOOL)animated
 {
-    self.selected = selected;
+    _selected = selected;
 }
 
 /*

@@ -10,7 +10,7 @@
 #import "TYHorizenTableView.h"
 
 @interface ViewController ()<TYHorizenTableViewDataSource,TYHorizenTableViewDelegate>
-
+@property (nonatomic, weak) TYHorizenTableView *horizonTableView;
 @end
 
 @implementation ViewController
@@ -19,22 +19,44 @@
     [super viewDidLoad];
     // Do any additional setup after loading the view, typically from a nib.
     [self addHorizenTableView];
+    
+    [self addScrollButton];
+    
+    [_horizonTableView reloadData];
 }
 
 - (void)addHorizenTableView
 {
-    TYHorizenTableView *horizonTableView = [[TYHorizenTableView alloc]initWithFrame:CGRectMake(0, 64, CGRectGetWidth(self.view.frame), 260)];
+    TYHorizenTableView *horizonTableView = [[TYHorizenTableView alloc]initWithFrame:CGRectMake(0, 124, CGRectGetWidth(self.view.frame), 200)];
+    horizonTableView.cellSpacing = 20;
     horizonTableView.delegate = self;
     horizonTableView.dataSource = self;
     
     [self.view addSubview:horizonTableView];
-    
-    [horizonTableView reloadData];
+    _horizonTableView = horizonTableView;
+}
+
+- (void)addScrollButton
+{
+    UIButton *button = [UIButton buttonWithType:UIButtonTypeSystem];
+    button.frame = CGRectMake(0, 0, 100, 40);
+    button.center = CGPointMake(CGRectGetWidth(self.view.frame)/2, CGRectGetMaxY(_horizonTableView.frame)+60);
+    [button setTitle:@"滚动到下一页" forState:UIControlStateNormal];
+    [button addTarget:self action:@selector(scrollToIndex:) forControlEvents:UIControlEventTouchUpInside];
+    [self.view addSubview:button];
+}
+
+- (void)scrollToIndex:(UIButton *)sender
+{
+    static NSInteger index = 2;
+    NSLog(@"滚动到第%ld页",index);
+    BOOL animated = YES;//(index%20 != 0);
+    [_horizonTableView scrollToIndex:index++%20 atPosition:TYHorizenTableViewPositionCenter animated:animated];
 }
 
 - (NSInteger)horizenTableViewOnNumberOfItems:(TYHorizenTableView *)horizenTableView
 {
-    return 10;
+    return 20;
 }
 
 - (TYHorizenTableViewCell *)horizenTableView:(TYHorizenTableView *)horizenTableView cellForItemAtIndex:(NSInteger)index
@@ -50,7 +72,7 @@
 
 - (CGFloat)horizenTableView:(TYHorizenTableView *)horizenTableView widthForItemAtIndex:(NSInteger)index
 {
-    return 60 + arc4random()%60;
+    return 120+ arc4random()%60;
 }
 
 - (void)didReceiveMemoryWarning {

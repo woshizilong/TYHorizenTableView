@@ -11,18 +11,18 @@
 
 @interface TYHorizenTableViewCell ()
 @property (nonatomic, assign, readwrite) NSInteger   index;
-@property (nonatomic, assign, readwrite) BOOL       selected;
 @end
 
 @interface TYHorizenTableView ()<UIScrollViewDelegate>{
-    std::vector<CGRect>             _vecCellFrames;         // 所有cell的frames
+    std::vector<CGRect> _vecCellFrames;         // 所有cell的frames
+    NSRange             _visibleRange;
 }
 
 @property (nonatomic, strong) NSMutableDictionary   *visibleCells;  // 显示的cells字典
 @property (nonatomic, strong) NSMutableDictionary   *reuseCells;    // 可重用的cell字典
 @property (nonatomic, assign) NSInteger             selectedIndex;  // 选中的cell
-
 @property (nonatomic, strong) UITapGestureRecognizer* singleTap; //点击手势
+
 
 @end
 
@@ -48,6 +48,7 @@
 
 - (void)setPropertys
 {
+    self.backgroundColor = [UIColor whiteColor];
     _visibleCells = [NSMutableDictionary dictionary];
     _reuseCells = [NSMutableDictionary dictionary];
     _vecCellFrames = std::vector<CGRect>();
@@ -58,8 +59,11 @@
 
 - (void)resetPropertys
 {
+    [[_visibleCells allValues]makeObjectsPerformSelector:@selector(removeFromSuperview)];
     [_visibleCells removeAllObjects];
+    [[_reuseCells allValues]makeObjectsPerformSelector:@selector(removeFromSuperview)];
     [_reuseCells removeAllObjects];
+    _visibleRange = NSMakeRange(0, 0);
     _selectedIndex = -1;
     
     _vecCellFrames.clear();
@@ -101,16 +105,51 @@
 
 - (TYHorizenTableViewCell *)dequeueReusableCellWithIdentifier:(NSString *)identifier
 {
-    if ([[self.reuseCells allKeys]containsObject:identifier]) {
-        NSMutableSet *set = self.reuseCells[identifier];
+    NSMutableSet *set = [_reuseCells objectForKey:identifier];
+    if (set && set.count > 0) {
         TYHorizenTableViewCell *reuseCell = [set anyObject];
-        
         if (reuseCell) {
             [set removeObject:reuseCell];
         }
         return reuseCell;
     }
     return nil;
+}
+
+- (void)scrollToIndex:(NSInteger)index atPosition:(TYHorizenTableViewPosition)position animated:(BOOL)animated
+{
+    if (index < 0 || index >= _vecCellFrames.size()) {
+        return;
+    }
+    CGRect cellVisibleFrame = _vecCellFrames[index];
+    
+    switch (position) {
+            
+        case TYHorizenTableViewPositionLeft:
+            break;
+            
+        case TYHorizenTableViewPositionRight:
+            cellVisibleFrame.origin.x += CGRectGetWidth(cellVisibleFrame) - CGRectGetWidth(self.frame);
+            break;
+            
+        case TYHorizenTableViewPositionCenter:
+            cellVisibleFrame.origin.x -= (CGRectGetWidth(self.frame) - CGRectGetWidth(cellVisibleFrame))/2;
+            break;
+            
+        default:
+        case TYHorizenTableViewPositionNone:
+            break;
+    }
+    
+    if (cellVisibleFrame.origin.x < 0.0) {
+        cellVisibleFrame.origin.x = 0.0;
+    }else if (cellVisibleFrame.origin.x > self.contentSize.width - CGRectGetWidth(self.frame)) {
+        cellVisibleFrame.origin.x = self.contentSize.width - CGRectGetWidth(self.frame);
+    }
+    
+    cellVisibleFrame.size = self.frame.size;
+    [self scrollRectToVisible:cellVisibleFrame animated:animated];
+    //[self setContentOffset:cellVisibleFrame.origin animated:animated];
 }
 
 - (void)selectCellAtIndex:(NSInteger)index animated:(BOOL)animated
@@ -134,19 +173,24 @@
     for (int index = 0; index < numberOfItems; ++index) {
         CGFloat cellWidth = [_dataSource horizenTableView:self widthForItemAtIndex:index];
         CGRect cellFrame = CGRectMake(contentWidth, 0, cellWidth, contentHeight);
-        
-        contentWidth += cellWidth + ((index > 1 || index < numberOfItems) ? _cellSpacing : 0);
+        NSInteger cellSpace = (index == numberOfItems-1) ? 0 : _cellSpacing;
+        contentWidth += cellWidth + cellSpace;
         _vecCellFrames.push_back(cellFrame);
     }
     
-    self.contentSize = CGSizeMake(contentWidth, 0);
+    self.contentSize = CGSizeMake(contentWidth, contentHeight);
 }
 
 - (void)layoutVisibleCells
 {
     NSRange visibleCellRange = [self getVisibleCellRange];
-    NSMutableDictionary *noVisibleCells = [_visibleCells mutableCopy];
     
+    // 优化性能
+    if (NSEqualRanges(_visibleRange, visibleCellRange)) {
+        return;
+    }
+
+    NSMutableArray *unVisibelCellKeys = [NSMutableArray arrayWithArray:[_visibleCells allKeys]];
     for (NSInteger index = visibleCellRange.location; index < NSMaxRange(visibleCellRange); ++index) {
         
         TYHorizenTableViewCell *cell = [_visibleCells objectForKey:@(index)];
@@ -155,36 +199,44 @@
             // 添加cell到index位置
             [self addCell:cell atIndex:index];
         }else{
-            [noVisibleCells removeObjectForKey:@(index)];
+            [unVisibelCellKeys removeObject:@(index)];
         }
         
-        [cell setSelected:(_selectedIndex == index) animated:NO];
+        if (_selectedIndex == index) {
+            [cell setSelected:YES animated:NO];
+        }else if (cell.selected){
+            [cell setSelected:NO animated:NO];
+        }
         
     }
     
     // 把多余不显示的加入重用池
-    [noVisibleCells enumerateKeysAndObjectsUsingBlock:^(NSNumber *index, id obj, BOOL *stop) {
-        [self enqueueCell:obj atIndex:[index integerValue]];
-    }];
-        
+    for (NSNumber *index in unVisibelCellKeys) {
+        TYHorizenTableViewCell *cell = [_visibleCells objectForKey:index];
+        if (cell) {
+            [self enqueueCell:cell atIndex:index];
+        }
+    }
+    
 }
 
 
-- (void)enqueueCell:(TYHorizenTableViewCell*)cell atIndex:(NSInteger)index
+- (void)enqueueCell:(TYHorizenTableViewCell*)cell atIndex:(NSNumber *)index
 {
-    NSString *identifier = cell.identifier;
-    NSMutableSet *set = [_reuseCells objectForKey:identifier];
+    NSMutableSet *set = [_reuseCells objectForKey:cell.identifier];
     if (set == nil) {
         set = [NSMutableSet set];
-        [_reuseCells setObject:set forKey:identifier];
+        _reuseCells[cell.identifier] = set;
     }
     if (set.count < 2){
         cell.index = -1;
+        cell.hidden = YES;
         [set addObject:cell];
+    }else {
+        [cell removeFromSuperview];
     }
     
-    [cell removeFromSuperview];
-    [_visibleCells removeObjectForKey:@(index)];
+    [_visibleCells removeObjectForKey:index];
 }
 
 - (void)addCell:(TYHorizenTableViewCell *)cell atIndex:(NSInteger)index
@@ -192,12 +244,14 @@
     cell.index = index;
     CGRect cellFrame = _vecCellFrames[index];
     [cell setFrame:cellFrame];
-    if (cell.superview) {
+    if (cell.superview != self) {
         [cell removeFromSuperview];
+        [self addSubview:cell];
+    }else {
+        cell.hidden = NO;
     }
-    [self addSubview:cell];
-    
-    [_visibleCells setObject:cell forKey:@(index)];
+
+    _visibleCells[@(index)] = cell;
 }
 
 - (TYHorizenTableViewCell *)cellForIndex:(NSInteger)index
@@ -209,14 +263,16 @@
 {
     BOOL isOverVisibleRect = NO; // 优化次数
     // 可见区域rect
-    CGRect visibleRect = CGRectMake(self.contentOffset.x, self.contentOffset.y, CGRectGetWidth(self.frame), CGRectGetHeight(self.frame));
+    CGRect visibleRect = {self.contentOffset,self.frame.size};
+    //CGRectMake(self.contentOffset.x, self.contentOffset.y, CGRectGetWidth(self.frame), CGRectGetHeight(self.frame));
     
     NSInteger startIndex = 0, endIndex = 0;
-    NSInteger index = 0, count = _vecCellFrames.size();
+    NSInteger index = _visibleRange.location > 0 ? _visibleRange.location - 1:0;
+    NSInteger count = _vecCellFrames.size();
     
     for (; index < count; ++index) {
-        CGRect cellRect = _vecCellFrames[index];
-        if (CGRectIntersectsRect(visibleRect,cellRect)) {
+        //CGRect cellRect = _vecCellFrames[index];
+        if (CGRectIntersectsRect(visibleRect,_vecCellFrames[index])) {
             // 在可见区域
             if (!isOverVisibleRect) {
                 startIndex = index;
@@ -266,17 +322,13 @@
 
 - (void)layoutSubviews
 {
-    [super layoutSubviews];
+    //[super layoutSubviews];
     [self layoutVisibleCells];
+
     
 //    NSMutableSet *set = _reuseCells[@"cell"];
 //    NSLog(@"visible cell num:%ld",_visibleCells.count);
 //    NSLog(@"reuse cell num:%ld",set.count);
-}
-
-- (void)dealloc
-{
-    [self resetPropertys];
 }
 
 /*
@@ -286,5 +338,10 @@
     // Drawing code
 }
 */
+
+- (void)dealloc
+{
+    [self resetPropertys];
+}
 
 @end
