@@ -72,7 +72,7 @@
 
 - (CGFloat)horizenTableView:(TYHorizenTableView *)horizenTableView widthForItemAtIndex:(NSInteger)index
 {
-    return 120 + arc4random()%60;
+    return 100 + arc4random()%60;
 }
 
 - (void)didReceiveMemoryWarning {

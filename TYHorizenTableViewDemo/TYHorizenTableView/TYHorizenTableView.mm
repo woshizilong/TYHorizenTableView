@@ -16,6 +16,7 @@
 @interface TYHorizenTableView ()<UIScrollViewDelegate>{
     std::vector<CGRect> _vecCellFrames;         // 所有cell的frames
     NSRange             _visibleRange;
+    CGFloat             _preOffsetX;
 }
 
 @property (nonatomic, strong) NSMutableDictionary   *visibleCells;  // 显示的cells字典
@@ -227,11 +228,22 @@
 {
     BOOL isOverVisibleRect = NO; // 优化次数
     // 可见区域rect
-    CGFloat visibleOrignX = [self contentOffset].x;
-    CGFloat visibleEndX = visibleOrignX + CGRectGetWidth(self.frame);
+    CGFloat visibleOrignX = self.contentOffset.x;
+    CGFloat visibleEndX = visibleOrignX + self.frame.size.width;
+    
+    NSInteger index = 0;
+    if (visibleOrignX > _preOffsetX) {
+        index = _visibleRange.location;
+    } else if (_preOffsetX - visibleOrignX < 4.0){
+        index = _visibleRange.location - 1;
+    }
+    
+    if (index < 0) {
+        index = 0;
+    }
+    _preOffsetX = visibleOrignX;
     
     NSInteger startIndex = 0, endIndex = 0;
-    NSInteger index = _visibleRange.location > 0 ? _visibleRange.location - 1:0;
     NSInteger count = _vecCellFrames.size();
     
     for (;index < count; ++index) {
