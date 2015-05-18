@@ -19,16 +19,15 @@ typedef struct {
 }TYPosition;
 
 @interface TYHorizenTableView ()<UIScrollViewDelegate>{
-    //std::vector<CGRect> _vecCellFrames;         // 所有cell的frames
-    std::vector<TYPosition> _vecCellPositions;
-    NSRange             _visibleRange;
-    CGFloat             _preOffsetX;
+    std::vector<TYPosition> _vecCellPositions;  // 所有cell的位置
+    NSRange             _visibleRange;          // 当前可见cell范围
+    CGFloat             _preOffsetX;            // 前一个offset
 }
 
-@property (nonatomic, strong) NSMutableDictionary   *visibleCells;  // 显示的cells字典
-@property (nonatomic, strong) NSMutableDictionary   *reuseCells;    // 可重用的cell字典
-@property (nonatomic, assign) NSInteger             selectedIndex;  // 选中的cell
-@property (nonatomic, strong) UITapGestureRecognizer* singleTap; //点击手势
+@property (nonatomic, strong) NSMutableDictionary   *visibleCells; // 显示的cells字典
+@property (nonatomic, strong) NSMutableDictionary   *reuseCells;   // 可重用的cell字典
+@property (nonatomic, assign) NSInteger             selectedIndex; // 选中的cell
+@property (nonatomic, strong) UITapGestureRecognizer* singleTap;   //点击手势
 @property (nonatomic, strong) NSMutableArray *unVisibelCellKeys;
 
 @end
@@ -60,6 +59,7 @@ typedef struct {
     _reuseCells = [NSMutableDictionary dictionary];
     _unVisibelCellKeys = [NSMutableArray array];
     _vecCellPositions = std::vector<TYPosition>();
+    _maxReuseCount = 2;
     _selectedIndex = -1;
     
     [self addSingleTapGesture];
@@ -227,10 +227,11 @@ typedef struct {
     for (NSNumber *index in _unVisibelCellKeys) {
         TYHorizenTableViewCell *cell = [_visibleCells objectForKey:index];
         if (cell) {
-            [self enqueueCell:cell atIndex:index];
+            [self enqueueUnuseCell:cell];
         }
     }
     
+    [_visibleCells removeObjectsForKeys:_unVisibelCellKeys];
     [_unVisibelCellKeys removeAllObjects];
     
 }
@@ -299,14 +300,14 @@ typedef struct {
 }
 
 // 缓存cells
-- (void)enqueueCell:(TYHorizenTableViewCell*)cell atIndex:(NSNumber *)index
+- (void)enqueueUnuseCell:(TYHorizenTableViewCell*)cell
 {
     NSMutableSet *set = [_reuseCells objectForKey:cell.identifier];
     if (set == nil) {
         set = [NSMutableSet setWithCapacity:2];
         _reuseCells[cell.identifier] = set;
     }
-    if (set.count < 2){
+    if (set.count < _maxReuseCount){
         cell.index = -1;
         cell.hidden = YES;
         [set addObject:cell];
@@ -314,7 +315,7 @@ typedef struct {
         [cell removeFromSuperview];
     }
     
-    [_visibleCells removeObjectForKey:index];
+    //[_visibleCells removeObjectForKey:index];
 }
 
 - (TYHorizenTableViewCell *)cellForIndex:(NSInteger)index

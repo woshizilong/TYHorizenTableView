@@ -22,7 +22,7 @@
 {
     if (self = [super init]) {
         if (reuseIdentifier) {
-            self.identifier = reuseIdentifier;
+            _identifier = reuseIdentifier;
         }
     }
     return self;
