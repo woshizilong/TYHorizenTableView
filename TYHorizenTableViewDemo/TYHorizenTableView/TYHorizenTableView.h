@@ -59,7 +59,7 @@ typedef enum {
 @property (nonatomic, assign) id<TYHorizenTableViewDelegate>    delegate;
 
 @property (nonatomic, assign) CGFloat           cellSpacing; // cell之间间隔
-@property (nonatomic, assign) UIEdgeInsets      EdgeInsets;  // 四边间距
+@property (nonatomic, assign) UIEdgeInsets      edgeInsets;  // 四边间距
 
 /**
  *  从缓冲池获取cell

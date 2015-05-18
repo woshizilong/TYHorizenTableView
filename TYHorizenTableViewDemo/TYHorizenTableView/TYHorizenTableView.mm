@@ -19,7 +19,8 @@ typedef struct {
 }TYPosition;
 
 @interface TYHorizenTableView ()<UIScrollViewDelegate>{
-    std::vector<CGRect> _vecCellFrames;         // 所有cell的frames
+    //std::vector<CGRect> _vecCellFrames;         // 所有cell的frames
+    std::vector<TYPosition> _vecCellPositions;
     NSRange             _visibleRange;
     CGFloat             _preOffsetX;
 }
@@ -58,7 +59,7 @@ typedef struct {
     _visibleCells = [NSMutableDictionary dictionary];
     _reuseCells = [NSMutableDictionary dictionary];
     _unVisibelCellKeys = [NSMutableArray array];
-    _vecCellFrames = std::vector<CGRect>();
+    _vecCellPositions = std::vector<TYPosition>();
     _selectedIndex = -1;
     
     [self addSingleTapGesture];
@@ -74,7 +75,7 @@ typedef struct {
     _visibleRange = NSMakeRange(0, 0);
     _selectedIndex = -1;
     
-    _vecCellFrames.clear();
+    _vecCellPositions.clear();
 }
 
 - (void)setDelegate:(id<TYHorizenTableViewDelegate>)delegate
@@ -126,10 +127,11 @@ typedef struct {
 
 - (void)scrollToIndex:(NSInteger)index atPosition:(TYHorizenTableViewPosition)position animated:(BOOL)animated
 {
-    if (index < 0 || index >= _vecCellFrames.size()) {
+    if (index < 0 || index >= _vecCellPositions.size()) {
         return;
     }
-    CGRect cellVisibleFrame = _vecCellFrames[index];
+    TYPosition cellVisiblePositon = _vecCellPositions[index];
+    CGFloat viewWidth = CGRectGetWidth(self.frame);
     
     switch (position) {
             
@@ -137,11 +139,11 @@ typedef struct {
             break;
             
         case TYHorizenTableViewPositionRight:
-            cellVisibleFrame.origin.x += CGRectGetWidth(cellVisibleFrame) - CGRectGetWidth(self.frame);
+            cellVisiblePositon.originX += cellVisiblePositon.width - viewWidth;
             break;
             
         case TYHorizenTableViewPositionCenter:
-            cellVisibleFrame.origin.x -= (CGRectGetWidth(self.frame) - CGRectGetWidth(cellVisibleFrame))/2;
+            cellVisiblePositon.originX -= (viewWidth - cellVisiblePositon.width)/2;
             break;
             
         default:
@@ -149,13 +151,13 @@ typedef struct {
             break;
     }
     
-    if (cellVisibleFrame.origin.x < 0.0) {
-        cellVisibleFrame.origin.x = 0.0;
-    }else if (cellVisibleFrame.origin.x > self.contentSize.width - CGRectGetWidth(self.frame)) {
-        cellVisibleFrame.origin.x = self.contentSize.width - CGRectGetWidth(self.frame);
+    if (cellVisiblePositon.originX < 0.0) {
+        cellVisiblePositon.originX = 0.0;
+    }else if (cellVisiblePositon.originX > self.contentSize.width - viewWidth) {
+        cellVisiblePositon.originX = self.contentSize.width - viewWidth;
     }
     
-    cellVisibleFrame.size = self.frame.size;
+    CGRect cellVisibleFrame  = CGRectMake(cellVisiblePositon.originX, 0, viewWidth, CGRectGetHeight(self.frame));
     [self scrollRectToVisible:cellVisibleFrame animated:animated];
     //[self setContentOffset:cellVisibleFrame.origin animated:animated];
 }
@@ -172,18 +174,19 @@ typedef struct {
 {
     // 获得item的数目
     NSInteger numberOfItems = [_dataSource horizenTableViewOnNumberOfItems:self];
-    CGFloat contentWidth  = 0;
+    CGFloat contentWidth  = _edgeInsets.left;
     CGFloat contentHeight = CGRectGetHeight(self.frame);
     
-    _vecCellFrames.reserve(numberOfItems);
+    _vecCellPositions.reserve(numberOfItems);
     
     // 计算所有cell的frame
     for (int index = 0; index < numberOfItems; ++index) {
         CGFloat cellWidth = [_dataSource horizenTableView:self widthForItemAtIndex:index];
-        CGRect cellFrame = CGRectMake(contentWidth, 0, cellWidth, contentHeight);
-        NSInteger cellSpace = (index == numberOfItems-1) ? 0 : _cellSpacing;
+        TYPosition cellPosition = {contentWidth,cellWidth};
+        _vecCellPositions.push_back(cellPosition);
+        
+        NSInteger cellSpace = (index == numberOfItems-1) ? _edgeInsets.right : _cellSpacing;
         contentWidth += cellWidth + cellSpace;
-        _vecCellFrames.push_back(cellFrame);
     }
     
     self.contentSize = CGSizeMake(contentWidth, contentHeight);
@@ -238,7 +241,7 @@ typedef struct {
     BOOL isOverVisibleRect = NO; // 优化次数
     // 可见区域rect
     CGFloat visibleOrignX = self.contentOffset.x;
-    CGFloat visibleEndX = visibleOrignX + self.frame.size.width;
+    CGFloat visibleEndX = visibleOrignX + CGRectGetWidth(self.frame);
     
     NSInteger index = 0;
     if (visibleOrignX > _preOffsetX) {
@@ -253,12 +256,12 @@ typedef struct {
     _preOffsetX = visibleOrignX;
     
     NSInteger startIndex = 0, endIndex = 0;
-    NSInteger count = _vecCellFrames.size();
+    NSInteger count = _vecCellPositions.size();
     
     for (;index < count; ++index) {
-        const CGRect& cellRect = _vecCellFrames[index];
-        if (CGRectGetMaxX(cellRect) >= visibleOrignX
-            && cellRect.origin.x < visibleEndX) {
+        const TYPosition& cellPosition = _vecCellPositions[index];
+        if (cellPosition.originX + cellPosition.width >= visibleOrignX
+            && cellPosition.originX < visibleEndX) {
             // 在可见区域
             if (!isOverVisibleRect) {
                 startIndex = index;
@@ -281,12 +284,14 @@ typedef struct {
 - (void)addCell:(TYHorizenTableViewCell *)cell atIndex:(NSInteger)index
 {
     cell.index = index;
-    CGRect cellFrame = _vecCellFrames[index];
+    TYPosition cellPosition = _vecCellPositions[index];
+    CGRect cellFrame = CGRectMake(cellPosition.originX, _edgeInsets.top, cellPosition.width, CGRectGetHeight(self.frame)-_edgeInsets.top-_edgeInsets.bottom);
+    
     [cell setFrame:cellFrame];
     if (cell.superview != self) {
         [cell removeFromSuperview];
         [self addSubview:cell];
-    }else {
+    }else if (cell.hidden) {
         cell.hidden = NO;
     }
     
@@ -324,8 +329,8 @@ typedef struct {
     NSArray *visibleCells = [_visibleCells allValues];
     
     for (TYHorizenTableViewCell *cell in visibleCells) {
-        if (CGRectContainsPoint(cell.frame, point)) {
-            NSLog(@"select cell index :%ld",cell.index);
+        if (CGRectContainsPoint(cell.frame, point) && !cell.hidden) {
+            NSLog(@"select cell index :%ld",(long)cell.index);
             if ([self.delegate respondsToSelector:@selector(horizenTableView:didSelectCellAtIndex:)]) {
                 [self.delegate horizenTableView:self didSelectCellAtIndex:cell.index];
             }

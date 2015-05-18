@@ -9,7 +9,7 @@
 #import "ViewController.h"
 #import "TYHorizenTableView.h"
 
-@interface ViewController ()<TYHorizenTableViewDataSource,TYHorizenTableViewDelegate>
+@interface ViewController ()<TYHorizenTableViewDataSource,TYHorizenTableViewDelegate,UITableViewDataSource,UITableViewDelegate>
 @property (nonatomic, weak) TYHorizenTableView *horizonTableView;
 @end
 
@@ -20,20 +20,32 @@
     // Do any additional setup after loading the view, typically from a nib.
     [self addHorizenTableView];
     
-    [self addScrollButton];
+    [self addTableview];
+    
+    //[self addScrollButton];
     
     [_horizonTableView reloadData];
 }
 
 - (void)addHorizenTableView
 {
-    TYHorizenTableView *horizonTableView = [[TYHorizenTableView alloc]initWithFrame:CGRectMake(0, 124, CGRectGetWidth(self.view.frame), 200)];
+    TYHorizenTableView *horizonTableView = [[TYHorizenTableView alloc]initWithFrame:CGRectMake(0, 46, CGRectGetWidth(self.view.frame), 200)];
     //horizonTableView.cellSpacing = 16;
     horizonTableView.delegate = self;
     horizonTableView.dataSource = self;
     
     [self.view addSubview:horizonTableView];
     _horizonTableView = horizonTableView;
+}
+
+- (void)addTableview
+{
+    // 添加tableView
+    UITableView *tableView = [[UITableView alloc]initWithFrame:CGRectMake(60, CGRectGetMaxY(_horizonTableView.frame)+10, 200, 320)];
+    tableView.transform = CGAffineTransformMakeRotation(M_PI/-2);
+    tableView.delegate = self;
+    tableView.dataSource = self;
+    [self.view addSubview:tableView];
 }
 
 - (void)addScrollButton
@@ -71,6 +83,27 @@
 }
 
 - (CGFloat)horizenTableView:(TYHorizenTableView *)horizenTableView widthForItemAtIndex:(NSInteger)index
+{
+    return 100 + arc4random()%60;
+}
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
+{
+    return 20;
+}
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"cell"];
+    if (cell == nil) {
+        cell = [[UITableViewCell alloc]initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"cell"];
+        cell.backgroundColor = [UIColor colorWithRed:arc4random()%255/255.0 green:arc4random()%255/255.0 blue:arc4random()%255/255.0 alpha:0.8];
+        cell.contentView.transform = CGAffineTransformMakeRotation(M_PI/2);
+    }
+    return cell;
+}
+
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
     return 100 + arc4random()%60;
 }
