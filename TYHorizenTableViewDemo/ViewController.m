@@ -28,7 +28,7 @@
 - (void)addHorizenTableView
 {
     TYHorizenTableView *horizonTableView = [[TYHorizenTableView alloc]initWithFrame:CGRectMake(0, 124, CGRectGetWidth(self.view.frame), 200)];
-    horizonTableView.cellSpacing = 16;
+    //horizonTableView.cellSpacing = 16;
     horizonTableView.delegate = self;
     horizonTableView.dataSource = self;
     

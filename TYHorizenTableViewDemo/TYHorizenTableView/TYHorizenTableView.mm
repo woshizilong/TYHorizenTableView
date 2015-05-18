@@ -13,6 +13,11 @@
 @property (nonatomic, assign, readwrite) NSInteger   index;
 @end
 
+typedef struct {
+    CGFloat originX;
+    CGFloat width;
+}TYPosition;
+
 @interface TYHorizenTableView ()<UIScrollViewDelegate>{
     std::vector<CGRect> _vecCellFrames;         // 所有cell的frames
     NSRange             _visibleRange;
@@ -23,7 +28,7 @@
 @property (nonatomic, strong) NSMutableDictionary   *reuseCells;    // 可重用的cell字典
 @property (nonatomic, assign) NSInteger             selectedIndex;  // 选中的cell
 @property (nonatomic, strong) UITapGestureRecognizer* singleTap; //点击手势
-
+@property (nonatomic, strong) NSMutableArray *unVisibelCellKeys;
 
 @end
 
@@ -52,6 +57,7 @@
     self.backgroundColor = [UIColor whiteColor];
     _visibleCells = [NSMutableDictionary dictionary];
     _reuseCells = [NSMutableDictionary dictionary];
+    _unVisibelCellKeys = [NSMutableArray array];
     _vecCellFrames = std::vector<CGRect>();
     _selectedIndex = -1;
     
@@ -64,6 +70,7 @@
     [_visibleCells removeAllObjects];
     [[_reuseCells allValues]makeObjectsPerformSelector:@selector(removeFromSuperview)];
     [_reuseCells removeAllObjects];
+    [_unVisibelCellKeys removeAllObjects];
     _visibleRange = NSMakeRange(0, 0);
     _selectedIndex = -1;
     
@@ -193,7 +200,7 @@
     }
     _visibleRange = visibleCellRange;
 
-    NSMutableArray *unVisibelCellKeys = [NSMutableArray arrayWithArray:[_visibleCells allKeys]];
+    [_unVisibelCellKeys addObjectsFromArray:[_visibleCells allKeys]];
     for (NSInteger index = visibleCellRange.location; index < NSMaxRange(visibleCellRange); ++index) {
         
         TYHorizenTableViewCell *cell = [_visibleCells objectForKey:@(index)];
@@ -202,7 +209,7 @@
             // 添加cell到index位置
             [self addCell:cell atIndex:index];
         }else{
-            [unVisibelCellKeys removeObject:@(index)];
+            [_unVisibelCellKeys removeObject:@(index)];
         }
         
         if (_selectedIndex == index) {
@@ -214,12 +221,14 @@
     }
     
     // 把多余不显示的加入重用池
-    for (NSNumber *index in unVisibelCellKeys) {
+    for (NSNumber *index in _unVisibelCellKeys) {
         TYHorizenTableViewCell *cell = [_visibleCells objectForKey:index];
         if (cell) {
             [self enqueueCell:cell atIndex:index];
         }
     }
+    
+    [_unVisibelCellKeys removeAllObjects];
     
 }
 
@@ -234,7 +243,7 @@
     NSInteger index = 0;
     if (visibleOrignX > _preOffsetX) {
         index = _visibleRange.location;
-    } else if (_preOffsetX - visibleOrignX < 4.0){
+    } else if (_preOffsetX - visibleOrignX < 5.0){
         index = _visibleRange.location - 1;
     }
     
@@ -308,6 +317,7 @@
     return [_visibleCells objectForKey:@(index)];
 }
 
+// 点击事件
 - (void)singleTapGesture:(UITapGestureRecognizer *)sender
 {
     CGPoint point = [sender locationInView:self];
