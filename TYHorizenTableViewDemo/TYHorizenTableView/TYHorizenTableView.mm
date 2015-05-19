@@ -195,6 +195,7 @@ typedef struct {
 // 布局可见cells
 - (void)layoutVisibleCells
 {
+    
     NSRange visibleCellRange = [self getVisibleCellRange];
     
     // 优化性能
@@ -285,7 +286,7 @@ typedef struct {
 - (void)addCell:(TYHorizenTableViewCell *)cell atIndex:(NSInteger)index
 {
     cell.index = index;
-    TYPosition cellPosition = _vecCellPositions[index];
+    const TYPosition& cellPosition = _vecCellPositions[index];
     CGRect cellFrame = CGRectMake(cellPosition.originX, _edgeInsets.top, cellPosition.width, CGRectGetHeight(self.frame)-_edgeInsets.top-_edgeInsets.bottom);
     
     [cell setFrame:cellFrame];
@@ -304,7 +305,7 @@ typedef struct {
 {
     NSMutableSet *set = [_reuseCells objectForKey:cell.identifier];
     if (set == nil) {
-        set = [NSMutableSet setWithCapacity:2];
+        set = [NSMutableSet setWithCapacity:_maxReuseCount];
         _reuseCells[cell.identifier] = set;
     }
     if (set.count < _maxReuseCount){
@@ -314,8 +315,6 @@ typedef struct {
     }else {
         [cell removeFromSuperview];
     }
-    
-    //[_visibleCells removeObjectForKey:index];
 }
 
 - (TYHorizenTableViewCell *)cellForIndex:(NSInteger)index
