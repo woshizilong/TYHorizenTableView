@@ -8,10 +8,15 @@
 
 #import "ViewController.h"
 #import "TYHorizenTableView.h"
+#import "ColorViewCell.h"
+#import "ColorXibCell.h"
 
 @interface ViewController ()<TYHorizenTableViewDataSource,TYHorizenTableViewDelegate,UITableViewDataSource,UITableViewDelegate>
 @property (nonatomic, weak) TYHorizenTableView *horizonTableView;
 @end
+
+static NSString *reuseColorXibCellId = @"ColorXibCell";
+static NSString *reuseColorViewCellId = @"ColorViewCell";
 
 @implementation ViewController
 
@@ -22,7 +27,10 @@
     
     [self addTableview];
     
-    //[self addScrollButton];
+    // 注册cell
+    [_horizonTableView registerClass:NSClassFromString(reuseColorViewCellId) forCellReuseIdentifier:reuseColorViewCellId];
+    
+    [_horizonTableView registerNibName:reuseColorXibCellId forCellReuseIdentifier:reuseColorXibCellId];
     
     [_horizonTableView reloadData];
 }
@@ -73,13 +81,20 @@
 
 - (TYHorizenTableViewCell *)horizenTableView:(TYHorizenTableView *)horizenTableView cellForItemAtIndex:(NSInteger)index
 {
-    TYHorizenTableViewCell *cell = [horizenTableView dequeueReusableCellWithIdentifier:@"cell"];
-    if (cell == nil) {
-        cell = [[TYHorizenTableViewCell alloc]initWithReuseIdentifier:@"cell"];
-        cell.backgroundColor = [UIColor colorWithRed:arc4random()%255/255.0 green:arc4random()%255/255.0 blue:arc4random()%255/255.0 alpha:0.8];
+    if (index%2 == 1) {
+        TYHorizenTableViewCell *cell = [horizenTableView dequeueReusableCellWithIdentifier:reuseColorViewCellId];
+        
+        //  使用了注册函数register 将会自动创建
+        //    if (cell == nil) {
+        //        cell = [[TYHorizenTableViewCell alloc]initWithReuseIdentifier:reuseColorViewCellId];
+        //        cell.backgroundColor = [UIColor colorWithRed:arc4random()%255/255.0 green:arc4random()%255/255.0 blue:arc4random()%255/255.0 alpha:0.8];
+        //    }
+        
+        return cell;
+    }else {
+        TYHorizenTableViewCell *cell = [horizenTableView dequeueReusableCellWithIdentifier:reuseColorXibCellId];
+        return cell;
     }
-    
-    return cell;
 }
 
 - (CGFloat)horizenTableView:(TYHorizenTableView *)horizenTableView widthForItemAtIndex:(NSInteger)index

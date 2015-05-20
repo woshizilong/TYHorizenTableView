@@ -13,10 +13,11 @@
 @property (nonatomic, copy, readonly)   NSString    *identifier; // 可重用标识
 
 @property (nonatomic, assign, readonly) NSInteger   index;
-
 @property (nonatomic, assign, readonly) BOOL        selected;
 
 - (instancetype)initWithReuseIdentifier:(NSString *)reuseIdentifier;
+
++ (instancetype)cellWithNibName:(NSString *)nibName identifier:(NSString *)reuseIdentifier;
 
 - (void)setSelected:(BOOL)selected animated:(BOOL)animated;
 

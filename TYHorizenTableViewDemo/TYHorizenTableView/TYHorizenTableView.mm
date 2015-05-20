@@ -18,14 +18,32 @@ typedef struct {
     CGFloat width;
 }TYPosition;
 
+inline BOOL TYPositionInPointRange(const TYPosition& position,CGFloat originX, CGFloat endX)
+{
+    if (position.originX + position.width >= originX
+        && position.originX < endX){
+        return YES;
+    }
+    return NO;
+}
+
 @interface TYHorizenTableView ()<UIScrollViewDelegate>{
     std::vector<TYPosition> _vecCellPositions;  // 所有cell的位置
-    NSRange             _visibleRange;          // 当前可见cell范围
-    CGFloat             _preOffsetX;            // 前一个offset
+    NSRange                 _visibleRange;      // 当前可见cell范围
+    CGFloat                 _preOffsetX;        // 前一个offset
+    
+    struct {
+        unsigned int didSelectCellAtIndex   :1;
+        unsigned int didDeselectCellAtIndex :1;
+        unsigned int willDisplayCell        :1;
+        unsigned int didEndDisplayingCell   :1;
+        unsigned int willSelectCellAtIndex  :1;
+    }_delegateFlags;
 }
 
 @property (nonatomic, strong) NSMutableDictionary   *visibleCells; // 显示的cells字典
 @property (nonatomic, strong) NSMutableDictionary   *reuseCells;   // 可重用的cell字典
+@property (nonatomic, strong) NSMutableDictionary   *reuseIdentifys;
 @property (nonatomic, assign) NSInteger             selectedIndex; // 选中的cell
 @property (nonatomic, strong) UITapGestureRecognizer* singleTap;   //点击手势
 @property (nonatomic, strong) NSMutableArray *unVisibelCellKeys;
@@ -81,6 +99,11 @@ typedef struct {
 - (void)setDelegate:(id<TYHorizenTableViewDelegate>)delegate
 {
     [super setDelegate:delegate];
+    
+    _delegateFlags.didSelectCellAtIndex = [delegate respondsToSelector:@selector(horizenTableView:didSelectCellAtIndex:)];
+    _delegateFlags.willDisplayCell = [delegate respondsToSelector:@selector(horizenTableView:willDisplayCell:atIndex:)];
+    _delegateFlags.didEndDisplayingCell = [delegate respondsToSelector:@selector(horizenTableView:didEndDisplayingCell:atIndex:)];
+    
 }
 
 - (void)reloadData
@@ -88,8 +111,8 @@ typedef struct {
     // 重置属性
     [self resetPropertys];
     
-    // 计算所有cell的frame
-    [self calculateCellFrames];
+    // 计算所有cell的位置
+    [self calculateCellPositions];
     
     // 布局所有可见cell frame
     [self layoutVisibleCells];
@@ -110,6 +133,14 @@ typedef struct {
     }
 }
 
+- (NSMutableDictionary *)reuseIdentifys
+{
+    if (_reuseIdentifys == nil) {
+        _reuseIdentifys = [NSMutableDictionary dictionary];
+    }
+    return _reuseIdentifys;
+}
+
 #pragma mark - public method
 
 - (TYHorizenTableViewCell *)dequeueReusableCellWithIdentifier:(NSString *)identifier
@@ -122,19 +153,40 @@ typedef struct {
         }
         return reuseCell;
     }
+    
+    id registerId = nil;
+    if (_reuseIdentifys && (registerId = [_reuseIdentifys objectForKey:identifier])) {
+        if ([registerId isKindOfClass:[NSString class]]) {
+            return [TYHorizenTableViewCell cellWithNibName:registerId identifier:identifier];
+        }else {
+            return [[registerId alloc]initWithReuseIdentifier:identifier];
+        }
+    }
     return nil;
+}
+
+- (void)registerClass:(Class)cellClass forCellReuseIdentifier:(NSString *)identifier
+{
+    self.reuseIdentifys[identifier] = cellClass;
+}
+
+- (void)registerNibName:(NSString *)nibName forCellReuseIdentifier:(NSString *)identifier
+{
+    self.reuseIdentifys[identifier] = nibName;
 }
 
 - (void)scrollToIndex:(NSInteger)index atPosition:(TYHorizenTableViewPosition)position animated:(BOOL)animated
 {
-    if (index < 0 || index >= _vecCellPositions.size()) {
+    if ( position == TYHorizenTableViewPositionNone
+        || index < 0 || index >= _vecCellPositions.size()) {
         return;
     }
     TYPosition cellVisiblePositon = _vecCellPositions[index];
     CGFloat viewWidth = CGRectGetWidth(self.frame);
     
     switch (position) {
-            
+        
+        case TYHorizenTableViewPositionNone:
         case TYHorizenTableViewPositionLeft:
             break;
             
@@ -147,7 +199,6 @@ typedef struct {
             break;
             
         default:
-        case TYHorizenTableViewPositionNone:
             break;
     }
     
@@ -162,15 +213,38 @@ typedef struct {
     //[self setContentOffset:cellVisibleFrame.origin animated:animated];
 }
 
+- (void)deSelectCellAtIndex:(NSInteger)index animated:(BOOL)animated
+{
+    TYHorizenTableViewCell *unSelectCell = [self cellForIndex:index];
+    if (unSelectCell) {
+        [unSelectCell setSelected:NO animated:animated];
+    }
+    
+    if (_selectedIndex == index) {
+        _selectedIndex = -1;
+    }
+}
+
 - (void)selectCellAtIndex:(NSInteger)index animated:(BOOL)animated
 {
     TYHorizenTableViewCell *cell = [self cellForIndex:index];
-    [self selectCell:cell animated:animated];
+    if (cell) {
+        [cell setSelected:YES animated:animated];
+    }
+    _selectedIndex = index;
+}
+
+- (void)selectCellAtIndex:(NSInteger)index animated:(BOOL)animated scrollPosition:(TYHorizenTableViewPosition)position
+{
+    [self deSelectCellAtIndex:_selectedIndex animated:animated];
+    [self selectCellAtIndex:index animated:animated];
+    [self scrollToIndex:index atPosition:position animated:animated];
 }
 
 #pragma mark - private method
 
-- (void)calculateCellFrames
+// 计算所有cell的位置
+- (void)calculateCellPositions
 {
     // 获得item的数目
     NSInteger numberOfItems = [_dataSource horizenTableViewOnNumberOfItems:self];
@@ -195,7 +269,6 @@ typedef struct {
 // 布局可见cells
 - (void)layoutVisibleCells
 {
-    
     NSRange visibleCellRange = [self getVisibleCellRange];
     
     // 优化性能
@@ -210,8 +283,17 @@ typedef struct {
         TYHorizenTableViewCell *cell = [_visibleCells objectForKey:@(index)];
         if (!cell) {
             cell = [_dataSource horizenTableView:self cellForItemAtIndex:index];
+            
+            if (_delegateFlags.willDisplayCell) {
+                cell.index = index;
+                [self.delegate horizenTableView:self willDisplayCell:cell atIndex:index];
+            }
             // 添加cell到index位置
             [self addCell:cell atIndex:index];
+            
+            if (_delegateFlags.didEndDisplayingCell) {
+                [self.delegate horizenTableView:self didEndDisplayingCell:cell atIndex:index];
+            }
         }else{
             [_unVisibelCellKeys removeObject:@(index)];
         }
@@ -221,7 +303,6 @@ typedef struct {
         }else if (cell.selected){
             [cell setSelected:NO animated:NO];
         }
-        
     }
     
     // 把多余不显示的加入重用池
@@ -261,9 +342,7 @@ typedef struct {
     NSInteger count = _vecCellPositions.size();
     
     for (;index < count; ++index) {
-        const TYPosition& cellPosition = _vecCellPositions[index];
-        if (cellPosition.originX + cellPosition.width >= visibleOrignX
-            && cellPosition.originX < visibleEndX) {
+        if (TYPositionInPointRange(_vecCellPositions[index], visibleOrignX, visibleEndX)) {
             // 在可见区域
             if (!isOverVisibleRect) {
                 startIndex = index;
@@ -327,28 +406,36 @@ typedef struct {
 {
     CGPoint point = [sender locationInView:self];
     NSArray *visibleCells = [_visibleCells allValues];
-    
+    NSInteger index = -1;
     for (TYHorizenTableViewCell *cell in visibleCells) {
-        if (CGRectContainsPoint(cell.frame, point) && !cell.hidden) {
-            NSLog(@"select cell index :%ld",(long)cell.index);
-            if ([self.delegate respondsToSelector:@selector(horizenTableView:didSelectCellAtIndex:)]) {
-                [self.delegate horizenTableView:self didSelectCellAtIndex:cell.index];
-            }
-            [self selectCell:cell animated:YES];
+        if (CGRectContainsPoint(cell.frame, point)) {
+            index = cell.index;
             break;
         }
     }
+    
+    if (index >= 0) {
+        [self handleEventSelectCellAtIndex:index];
+    }
 }
 
-- (void)selectCell:(TYHorizenTableViewCell *)cell animated:(BOOL)animated
+- (void)handleEventSelectCellAtIndex:(NSInteger)index
 {
-    if (_selectedIndex != cell.index) {
-        [cell setSelected:YES animated:animated];
-        TYHorizenTableViewCell *unSelectCell = [_visibleCells objectForKey:@(_selectedIndex)];
-        if (unSelectCell) {
-            [unSelectCell setSelected:NO animated:animated];
+    if (_delegateFlags.willSelectCellAtIndex) {
+        index = [self.delegate horizenTableView:self willSelectCellAtIndex:index];
+        NSLog(@"change select cell index :%ld",index);
+    }
+    
+    if (index != _selectedIndex) {
+        [self deSelectCellAtIndex:_selectedIndex animated:YES];
+        if (_delegateFlags.didDeselectCellAtIndex) {
+            [self.delegate horizenTableView:self willSelectCellAtIndex:index];
         }
-        _selectedIndex = cell.index;
+    }
+    
+    [self selectCellAtIndex:index animated:YES];
+    if (_delegateFlags.didSelectCellAtIndex) {
+        [self.delegate horizenTableView:self didSelectCellAtIndex:index];
     }
 }
 
@@ -361,14 +448,6 @@ typedef struct {
 //    NSLog(@"visible cell num:%ld",_visibleCells.count);
 //    NSLog(@"reuse cell num:%ld",set.count);
 }
-
-/*
-// Only override drawRect: if you perform custom drawing.
-// An empty implementation adversely affects performance during animation.
-- (void)drawRect:(CGRect)rect {
-    // Drawing code
-}
-*/
 
 - (void)dealloc
 {

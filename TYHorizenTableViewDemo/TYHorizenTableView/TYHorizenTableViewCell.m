@@ -29,6 +29,14 @@
 
 }
 
++ (instancetype)cellWithNibName:(NSString *)nibName identifier:(NSString *)reuseIdentifier
+{
+    NSArray *nibs = [[NSBundle mainBundle] loadNibNamed:nibName owner:self options:nil];
+    TYHorizenTableViewCell *cell = [nibs firstObject];
+    cell.identifier = reuseIdentifier;
+    return cell;
+}
+
 - (void)setSelected:(BOOL)selected animated:(BOOL)animated
 {
     _selected = selected;

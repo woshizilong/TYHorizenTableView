@@ -16,6 +16,9 @@
 		D3613EF51AFC8D7300ED71E1 /* TYHorizenTableViewDemoTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D3613EF41AFC8D7300ED71E1 /* TYHorizenTableViewDemoTests.m */; };
 		D3613F011AFC8DB500ED71E1 /* TYHorizenTableView.mm in Sources */ = {isa = PBXBuildFile; fileRef = D3613F001AFC8DB500ED71E1 /* TYHorizenTableView.mm */; };
 		D3613F041AFC8DF300ED71E1 /* TYHorizenTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = D3613F031AFC8DF300ED71E1 /* TYHorizenTableViewCell.m */; };
+		D37544C81B0B326A00FBB18A /* ColorViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = D37544C71B0B326A00FBB18A /* ColorViewCell.m */; };
+		D37544CB1B0B33AC00FBB18A /* ColorXibCell.m in Sources */ = {isa = PBXBuildFile; fileRef = D37544CA1B0B33AC00FBB18A /* ColorXibCell.m */; };
+		D37544CD1B0B33C700FBB18A /* ColorXibCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = D37544CC1B0B33C700FBB18A /* ColorXibCell.xib */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -46,6 +49,11 @@
 		D3613F001AFC8DB500ED71E1 /* TYHorizenTableView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = TYHorizenTableView.mm; sourceTree = "<group>"; };
 		D3613F021AFC8DF300ED71E1 /* TYHorizenTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TYHorizenTableViewCell.h; sourceTree = "<group>"; };
 		D3613F031AFC8DF300ED71E1 /* TYHorizenTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TYHorizenTableViewCell.m; sourceTree = "<group>"; };
+		D37544C61B0B326A00FBB18A /* ColorViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ColorViewCell.h; sourceTree = "<group>"; };
+		D37544C71B0B326A00FBB18A /* ColorViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ColorViewCell.m; sourceTree = "<group>"; };
+		D37544C91B0B33AC00FBB18A /* ColorXibCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ColorXibCell.h; sourceTree = "<group>"; };
+		D37544CA1B0B33AC00FBB18A /* ColorXibCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ColorXibCell.m; sourceTree = "<group>"; };
+		D37544CC1B0B33C700FBB18A /* ColorXibCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ColorXibCell.xib; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -90,6 +98,11 @@
 				D3613EFE1AFC8D8700ED71E1 /* TYHorizenTableView */,
 				D3613EDC1AFC8D7300ED71E1 /* AppDelegate.h */,
 				D3613EDD1AFC8D7300ED71E1 /* AppDelegate.m */,
+				D37544C61B0B326A00FBB18A /* ColorViewCell.h */,
+				D37544C71B0B326A00FBB18A /* ColorViewCell.m */,
+				D37544C91B0B33AC00FBB18A /* ColorXibCell.h */,
+				D37544CA1B0B33AC00FBB18A /* ColorXibCell.m */,
+				D37544CC1B0B33C700FBB18A /* ColorXibCell.xib */,
 				D3613EDF1AFC8D7300ED71E1 /* ViewController.h */,
 				D3613EE01AFC8D7300ED71E1 /* ViewController.m */,
 				D3613EE21AFC8D7300ED71E1 /* Main.storyboard */,
@@ -220,6 +233,7 @@
 				D3613EE41AFC8D7300ED71E1 /* Main.storyboard in Resources */,
 				D3613EE91AFC8D7300ED71E1 /* LaunchScreen.xib in Resources */,
 				D3613EE61AFC8D7300ED71E1 /* Images.xcassets in Resources */,
+				D37544CD1B0B33C700FBB18A /* ColorXibCell.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -237,6 +251,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D37544CB1B0B33AC00FBB18A /* ColorXibCell.m in Sources */,
+				D37544C81B0B326A00FBB18A /* ColorViewCell.m in Sources */,
 				D3613EE11AFC8D7300ED71E1 /* ViewController.m in Sources */,
 				D3613F041AFC8DF300ED71E1 /* TYHorizenTableViewCell.m in Sources */,
 				D3613EDE1AFC8D7300ED71E1 /* AppDelegate.m in Sources */,

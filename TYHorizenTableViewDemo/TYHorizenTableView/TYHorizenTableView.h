@@ -10,10 +10,10 @@
 #import "TYHorizenTableViewCell.h"
 
 typedef enum {
-    TYHorizenTableViewPositionNone = 0,
-    TYHorizenTableViewPositionLeft,
-    TYHorizenTableViewPositionRight,
-    TYHorizenTableViewPositionCenter,
+    TYHorizenTableViewPositionNone = 0, // 不滚动
+    TYHorizenTableViewPositionLeft,     // 滚动到左边
+    TYHorizenTableViewPositionRight,    //
+    TYHorizenTableViewPositionCenter,   // 
 } TYHorizenTableViewPosition;
 
 @class TYHorizenTableView;
@@ -41,15 +41,17 @@ typedef enum {
 @protocol TYHorizenTableViewDelegate <UIScrollViewDelegate>
 @optional
 
-/**
- *  选中点击cell
- */
-- (void)horizenTableView:(TYHorizenTableView *)horizenTableView didSelectCellAtIndex:(NSInteger)index;
+// Called before the user changes the selection. Return a new index, or 0, to change the proposed selection.
+- (NSInteger)horizenTableView:(TYHorizenTableView *)horizenTableView willSelectCellAtIndex:(NSInteger)index;
 
-/**
- *  取消选中点击cell
- */
-//- (void)horizenTableView:(TYHorizenTableView *)horizenTableView didDeselectCellAtIndex:(NSInteger)index;
+// Called after the user changes the selection.点击cell
+- (void)horizenTableView:(TYHorizenTableView *)horizenTableView didSelectCellAtIndex:(NSInteger)index;
+- (void)horizenTableView:(TYHorizenTableView *)horizenTableView didDeselectCellAtIndex:(NSInteger)index;
+
+// Display customization
+- (void)horizenTableView:(TYHorizenTableView *)horizenTableView willDisplayCell:(TYHorizenTableViewCell *)cell atIndex:(NSInteger)index;
+
+- (void)horizenTableView:(TYHorizenTableView *)horizenTableView didEndDisplayingCell:(TYHorizenTableViewCell *)cell atIndex:(NSInteger)index;
 
 @end
 
@@ -68,19 +70,30 @@ typedef enum {
 - (TYHorizenTableViewCell *)dequeueReusableCellWithIdentifier:(NSString *)identifier;
 
 /**
+ *  注册cell 以便自动重用 初始化在这里实现 awakeFromNib
+ */
+- (void)registerNibName:(NSString *)nibName forCellReuseIdentifier:(NSString *)identifier;
+
+/**
+ *  注册cell 以便自动重用 初始化在这里实现 initWithReuseIdentifier
+ */
+- (void)registerClass:(Class)cellClass forCellReuseIdentifier:(NSString *)identifier;
+
+/**
  *  滚动指定index位置
  */
 - (void)scrollToIndex:(NSInteger)index atPosition:(TYHorizenTableViewPosition)position animated:(BOOL)animated;
 
+// Selects and deselects cell. These methods will not call the delegate methods
 /**
- *  选中指定index cell
+ *  选中指定index cell 默认TYHorizenTableViewPositionNone不滚动
  */
-- (void)selectCellAtIndex:(NSInteger)index animated:(BOOL)animated;
+- (void)selectCellAtIndex:(NSInteger)index animated:(BOOL)animated scrollPosition:(TYHorizenTableViewPosition)position;
 
 /**
  *  取消选中 指定index cell
  */
-//- (void)deselectCellAtIndex:(NSInteger)index animated:(BOOL)animated;
+- (void)deSelectCellAtIndex:(NSInteger)index animated:(BOOL)animated;
 
 /**
  *  获取index项cell,如果cell不可见返回nil
