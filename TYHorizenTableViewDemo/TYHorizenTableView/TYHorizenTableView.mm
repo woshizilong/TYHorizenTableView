@@ -87,7 +87,11 @@ inline BOOL TYPositionInPointRange(const TYPosition& position,CGFloat originX, C
 {
     [[_visibleCells allValues]makeObjectsPerformSelector:@selector(removeFromSuperview)];
     [_visibleCells removeAllObjects];
-    [[_reuseCells allValues]makeObjectsPerformSelector:@selector(removeFromSuperview)];
+
+    for (NSSet *set in [_reuseCells allValues]) {
+        [set makeObjectsPerformSelector:@selector(removeFromSuperview)];
+    }
+    
     [_reuseCells removeAllObjects];
     [_unVisibelCellKeys removeAllObjects];
     _visibleRange = NSMakeRange(0, 0);
@@ -369,7 +373,9 @@ inline BOOL TYPositionInPointRange(const TYPosition& position,CGFloat originX, C
     CGRect cellFrame = CGRectMake(cellPosition.originX, _edgeInsets.top, cellPosition.width, CGRectGetHeight(self.frame)-_edgeInsets.top-_edgeInsets.bottom);
     
     [cell setFrame:cellFrame];
-    if (cell.superview != self) {
+    if (cell.superview == nil) {
+        [self addSubview:cell];
+    }else if (cell.superview != self){
         [cell removeFromSuperview];
         [self addSubview:cell];
     }else if (cell.hidden) {
@@ -423,7 +429,7 @@ inline BOOL TYPositionInPointRange(const TYPosition& position,CGFloat originX, C
 {
     if (_delegateFlags.willSelectCellAtIndex) {
         index = [self.delegate horizenTableView:self willSelectCellAtIndex:index];
-        NSLog(@"change select cell index :%ld",index);
+        NSLog(@"change select cell index :%ld",(long)index);
     }
     
     if (index != _selectedIndex) {
@@ -451,7 +457,9 @@ inline BOOL TYPositionInPointRange(const TYPosition& position,CGFloat originX, C
 
 - (void)dealloc
 {
-    [self resetPropertys];
+    _vecCellPositions.clear();
+    [_visibleCells removeAllObjects];
+    [_reuseCells removeAllObjects];
 }
 
 @end

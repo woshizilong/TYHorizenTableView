@@ -16,6 +16,8 @@
 		D3613EF51AFC8D7300ED71E1 /* TYHorizenTableViewDemoTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D3613EF41AFC8D7300ED71E1 /* TYHorizenTableViewDemoTests.m */; };
 		D3613F011AFC8DB500ED71E1 /* TYHorizenTableView.mm in Sources */ = {isa = PBXBuildFile; fileRef = D3613F001AFC8DB500ED71E1 /* TYHorizenTableView.mm */; };
 		D3613F041AFC8DF300ED71E1 /* TYHorizenTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = D3613F031AFC8DF300ED71E1 /* TYHorizenTableViewCell.m */; };
+		D374196F1B0D7C7B002D70C6 /* ColorViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D374196E1B0D7C7B002D70C6 /* ColorViewController.m */; };
+		D37419721B0D8375002D70C6 /* CustomViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D37419711B0D8375002D70C6 /* CustomViewController.m */; };
 		D37544C81B0B326A00FBB18A /* ColorViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = D37544C71B0B326A00FBB18A /* ColorViewCell.m */; };
 		D37544CB1B0B33AC00FBB18A /* ColorXibCell.m in Sources */ = {isa = PBXBuildFile; fileRef = D37544CA1B0B33AC00FBB18A /* ColorXibCell.m */; };
 		D37544CD1B0B33C700FBB18A /* ColorXibCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = D37544CC1B0B33C700FBB18A /* ColorXibCell.xib */; };
@@ -49,6 +51,10 @@
 		D3613F001AFC8DB500ED71E1 /* TYHorizenTableView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = TYHorizenTableView.mm; sourceTree = "<group>"; };
 		D3613F021AFC8DF300ED71E1 /* TYHorizenTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TYHorizenTableViewCell.h; sourceTree = "<group>"; };
 		D3613F031AFC8DF300ED71E1 /* TYHorizenTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TYHorizenTableViewCell.m; sourceTree = "<group>"; };
+		D374196D1B0D7C7B002D70C6 /* ColorViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ColorViewController.h; sourceTree = "<group>"; };
+		D374196E1B0D7C7B002D70C6 /* ColorViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ColorViewController.m; sourceTree = "<group>"; };
+		D37419701B0D8375002D70C6 /* CustomViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CustomViewController.h; sourceTree = "<group>"; };
+		D37419711B0D8375002D70C6 /* CustomViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CustomViewController.m; sourceTree = "<group>"; };
 		D37544C61B0B326A00FBB18A /* ColorViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ColorViewCell.h; sourceTree = "<group>"; };
 		D37544C71B0B326A00FBB18A /* ColorViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ColorViewCell.m; sourceTree = "<group>"; };
 		D37544C91B0B33AC00FBB18A /* ColorXibCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ColorXibCell.h; sourceTree = "<group>"; };
@@ -96,15 +102,15 @@
 			isa = PBXGroup;
 			children = (
 				D3613EFE1AFC8D8700ED71E1 /* TYHorizenTableView */,
+				D36424461B0C71B100F9DE8C /* customCell */,
 				D3613EDC1AFC8D7300ED71E1 /* AppDelegate.h */,
 				D3613EDD1AFC8D7300ED71E1 /* AppDelegate.m */,
-				D37544C61B0B326A00FBB18A /* ColorViewCell.h */,
-				D37544C71B0B326A00FBB18A /* ColorViewCell.m */,
-				D37544C91B0B33AC00FBB18A /* ColorXibCell.h */,
-				D37544CA1B0B33AC00FBB18A /* ColorXibCell.m */,
-				D37544CC1B0B33C700FBB18A /* ColorXibCell.xib */,
 				D3613EDF1AFC8D7300ED71E1 /* ViewController.h */,
 				D3613EE01AFC8D7300ED71E1 /* ViewController.m */,
+				D374196D1B0D7C7B002D70C6 /* ColorViewController.h */,
+				D374196E1B0D7C7B002D70C6 /* ColorViewController.m */,
+				D37419701B0D8375002D70C6 /* CustomViewController.h */,
+				D37419711B0D8375002D70C6 /* CustomViewController.m */,
 				D3613EE21AFC8D7300ED71E1 /* Main.storyboard */,
 				D3613EE51AFC8D7300ED71E1 /* Images.xcassets */,
 				D3613EE71AFC8D7300ED71E1 /* LaunchScreen.xib */,
@@ -148,6 +154,18 @@
 				D3613F031AFC8DF300ED71E1 /* TYHorizenTableViewCell.m */,
 			);
 			path = TYHorizenTableView;
+			sourceTree = "<group>";
+		};
+		D36424461B0C71B100F9DE8C /* customCell */ = {
+			isa = PBXGroup;
+			children = (
+				D37544C61B0B326A00FBB18A /* ColorViewCell.h */,
+				D37544C71B0B326A00FBB18A /* ColorViewCell.m */,
+				D37544C91B0B33AC00FBB18A /* ColorXibCell.h */,
+				D37544CA1B0B33AC00FBB18A /* ColorXibCell.m */,
+				D37544CC1B0B33C700FBB18A /* ColorXibCell.xib */,
+			);
+			name = customCell;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -256,7 +274,9 @@
 				D3613EE11AFC8D7300ED71E1 /* ViewController.m in Sources */,
 				D3613F041AFC8DF300ED71E1 /* TYHorizenTableViewCell.m in Sources */,
 				D3613EDE1AFC8D7300ED71E1 /* AppDelegate.m in Sources */,
+				D37419721B0D8375002D70C6 /* CustomViewController.m in Sources */,
 				D3613F011AFC8DB500ED71E1 /* TYHorizenTableView.mm in Sources */,
+				D374196F1B0D7C7B002D70C6 /* ColorViewController.m in Sources */,
 				D3613EDB1AFC8D7300ED71E1 /* main.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
