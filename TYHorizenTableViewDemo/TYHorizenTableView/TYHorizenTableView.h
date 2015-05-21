@@ -48,9 +48,9 @@ typedef enum {
 - (void)horizenTableView:(TYHorizenTableView *)horizenTableView didSelectCellAtIndex:(NSInteger)index;
 - (void)horizenTableView:(TYHorizenTableView *)horizenTableView didDeselectCellAtIndex:(NSInteger)index;
 
-// Display customization
+// cell will Display
 - (void)horizenTableView:(TYHorizenTableView *)horizenTableView willDisplayCell:(TYHorizenTableViewCell *)cell atIndex:(NSInteger)index;
-
+// cell did Disappear
 - (void)horizenTableView:(TYHorizenTableView *)horizenTableView didEndDisplayingCell:(TYHorizenTableViewCell *)cell atIndex:(NSInteger)index;
 
 @end
@@ -99,6 +99,11 @@ typedef enum {
  *  获取index项cell,如果cell不可见返回nil
  */
 - (TYHorizenTableViewCell *)cellForIndex:(NSInteger)index;
+
+/**
+ *  获取当可见cells
+ */
+- (NSArray *)visibleCells;;
 
 /**
  *  重新读取数据

@@ -41,8 +41,8 @@ inline BOOL TYPositionInPointRange(const TYPosition& position,CGFloat originX, C
     }_delegateFlags;
 }
 
-@property (nonatomic, strong) NSMutableDictionary   *visibleCells; // 显示的cells字典
-@property (nonatomic, strong) NSMutableDictionary   *reuseCells;   // 可重用的cell字典
+@property (nonatomic, strong) NSMutableDictionary   *visibleCellsDic; // 显示的cells字典
+@property (nonatomic, strong) NSMutableDictionary   *reuseCellsDic;   // 可重用的cell字典
 @property (nonatomic, strong) NSMutableDictionary   *reuseIdentifys;
 @property (nonatomic, assign) NSInteger             selectedIndex; // 选中的cell
 @property (nonatomic, strong) UITapGestureRecognizer* singleTap;   //点击手势
@@ -73,8 +73,8 @@ inline BOOL TYPositionInPointRange(const TYPosition& position,CGFloat originX, C
 - (void)setPropertys
 {
     self.backgroundColor = [UIColor whiteColor];
-    _visibleCells = [NSMutableDictionary dictionary];
-    _reuseCells = [NSMutableDictionary dictionary];
+    _visibleCellsDic = [NSMutableDictionary dictionary];
+    _reuseCellsDic = [NSMutableDictionary dictionary];
     _unVisibelCellKeys = [NSMutableArray array];
     _vecCellPositions = std::vector<TYPosition>();
     _maxReuseCount = 2;
@@ -85,14 +85,14 @@ inline BOOL TYPositionInPointRange(const TYPosition& position,CGFloat originX, C
 
 - (void)resetPropertys
 {
-    [[_visibleCells allValues]makeObjectsPerformSelector:@selector(removeFromSuperview)];
-    [_visibleCells removeAllObjects];
+    [[_visibleCellsDic allValues]makeObjectsPerformSelector:@selector(removeFromSuperview)];
+    [_visibleCellsDic removeAllObjects];
 
-    for (NSSet *set in [_reuseCells allValues]) {
+    for (NSSet *set in [_reuseCellsDic allValues]) {
         [set makeObjectsPerformSelector:@selector(removeFromSuperview)];
     }
     
-    [_reuseCells removeAllObjects];
+    [_reuseCellsDic removeAllObjects];
     [_unVisibelCellKeys removeAllObjects];
     _visibleRange = NSMakeRange(0, 0);
     _selectedIndex = -1;
@@ -149,7 +149,7 @@ inline BOOL TYPositionInPointRange(const TYPosition& position,CGFloat originX, C
 
 - (TYHorizenTableViewCell *)dequeueReusableCellWithIdentifier:(NSString *)identifier
 {
-    NSMutableSet *set = [_reuseCells objectForKey:identifier];
+    NSMutableSet *set = [_reuseCellsDic objectForKey:identifier];
     if (set && set.count > 0) {
         TYHorizenTableViewCell *reuseCell = [set anyObject];
         if (reuseCell) {
@@ -167,6 +167,16 @@ inline BOOL TYPositionInPointRange(const TYPosition& position,CGFloat originX, C
         }
     }
     return nil;
+}
+
+- (TYHorizenTableViewCell *)cellForIndex:(NSInteger)index
+{
+    return [_visibleCellsDic objectForKey:@(index)];
+}
+
+- (NSArray *)visibleCells
+{
+    return [_visibleCellsDic allValues];
 }
 
 - (void)registerClass:(Class)cellClass forCellReuseIdentifier:(NSString *)identifier
@@ -281,23 +291,16 @@ inline BOOL TYPositionInPointRange(const TYPosition& position,CGFloat originX, C
     }
     _visibleRange = visibleCellRange;
 
-    [_unVisibelCellKeys addObjectsFromArray:[_visibleCells allKeys]];
+    [_unVisibelCellKeys addObjectsFromArray:[_visibleCellsDic allKeys]];
     for (NSInteger index = visibleCellRange.location; index < NSMaxRange(visibleCellRange); ++index) {
         
-        TYHorizenTableViewCell *cell = [_visibleCells objectForKey:@(index)];
+        TYHorizenTableViewCell *cell = [_visibleCellsDic objectForKey:@(index)];
         if (!cell) {
             cell = [_dataSource horizenTableView:self cellForItemAtIndex:index];
             
-            if (_delegateFlags.willDisplayCell) {
-                cell.index = index;
-                [self.delegate horizenTableView:self willDisplayCell:cell atIndex:index];
-            }
             // 添加cell到index位置
             [self addCell:cell atIndex:index];
             
-            if (_delegateFlags.didEndDisplayingCell) {
-                [self.delegate horizenTableView:self didEndDisplayingCell:cell atIndex:index];
-            }
         }else{
             [_unVisibelCellKeys removeObject:@(index)];
         }
@@ -311,13 +314,13 @@ inline BOOL TYPositionInPointRange(const TYPosition& position,CGFloat originX, C
     
     // 把多余不显示的加入重用池
     for (NSNumber *index in _unVisibelCellKeys) {
-        TYHorizenTableViewCell *cell = [_visibleCells objectForKey:index];
+        TYHorizenTableViewCell *cell = [_visibleCellsDic objectForKey:index];
         if (cell) {
             [self enqueueUnuseCell:cell];
         }
     }
     
-    [_visibleCells removeObjectsForKeys:_unVisibelCellKeys];
+    [_visibleCellsDic removeObjectsForKeys:_unVisibelCellKeys];
     [_unVisibelCellKeys removeAllObjects];
     
 }
@@ -382,16 +385,24 @@ inline BOOL TYPositionInPointRange(const TYPosition& position,CGFloat originX, C
         cell.hidden = NO;
     }
     
-    _visibleCells[@(index)] = cell;
+    _visibleCellsDic[@(index)] = cell;
+    
+    if (_delegateFlags.willDisplayCell) {
+        [self.delegate horizenTableView:self willDisplayCell:cell atIndex:index];
+    }
 }
 
 // 缓存cells
 - (void)enqueueUnuseCell:(TYHorizenTableViewCell*)cell
 {
-    NSMutableSet *set = [_reuseCells objectForKey:cell.identifier];
+    if (_delegateFlags.willDisplayCell) {
+        [self.delegate horizenTableView:self willDisplayCell:cell atIndex:cell.index];
+    }
+    
+    NSMutableSet *set = [_reuseCellsDic objectForKey:cell.identifier];
     if (set == nil) {
         set = [NSMutableSet setWithCapacity:_maxReuseCount];
-        _reuseCells[cell.identifier] = set;
+        _reuseCellsDic[cell.identifier] = set;
     }
     if (set.count < _maxReuseCount){
         cell.index = -1;
@@ -402,16 +413,11 @@ inline BOOL TYPositionInPointRange(const TYPosition& position,CGFloat originX, C
     }
 }
 
-- (TYHorizenTableViewCell *)cellForIndex:(NSInteger)index
-{
-    return [_visibleCells objectForKey:@(index)];
-}
-
 // 点击事件
 - (void)singleTapGesture:(UITapGestureRecognizer *)sender
 {
     CGPoint point = [sender locationInView:self];
-    NSArray *visibleCells = [_visibleCells allValues];
+    NSArray *visibleCells = [_visibleCellsDic allValues];
     NSInteger index = -1;
     for (TYHorizenTableViewCell *cell in visibleCells) {
         if (CGRectContainsPoint(cell.frame, point)) {
@@ -450,16 +456,16 @@ inline BOOL TYPositionInPointRange(const TYPosition& position,CGFloat originX, C
     //[super layoutSubviews];
     [self layoutVisibleCells];
     
-//    NSMutableSet *set = _reuseCells[@"cell"];
-//    NSLog(@"visible cell num:%ld",_visibleCells.count);
+//    NSMutableSet *set = _reuseCellsDic[@"cell"];
+//    NSLog(@"visible cell num:%ld",_visibleCellsDic.count);
 //    NSLog(@"reuse cell num:%ld",set.count);
 }
 
 - (void)dealloc
 {
     _vecCellPositions.clear();
-    [_visibleCells removeAllObjects];
-    [_reuseCells removeAllObjects];
+    [_visibleCellsDic removeAllObjects];
+    [_reuseCellsDic removeAllObjects];
 }
 
 @end
