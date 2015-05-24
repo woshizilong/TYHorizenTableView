@@ -67,7 +67,7 @@ typedef enum {
 /**
  *  从缓冲池获取cell
  */
-- (TYHorizenTableViewCell *)dequeueReusableCellWithIdentifier:(NSString *)identifier;
+- (id)dequeueReusableCellWithIdentifier:(NSString *)identifier;
 
 /**
  *  注册cell 以便自动重用 初始化在这里实现 awakeFromNib

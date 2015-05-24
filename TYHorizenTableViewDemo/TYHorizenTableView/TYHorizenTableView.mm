@@ -119,7 +119,7 @@ inline BOOL TYPositionInPointRange(const TYPosition& position,CGFloat originX, C
     [self calculateCellPositions];
     
     // 布局所有可见cell frame
-    [self layoutVisibleCells];
+    [self updateVisibleCells];
 }
 
 - (void)addSingleTapGesture
@@ -281,7 +281,7 @@ inline BOOL TYPositionInPointRange(const TYPosition& position,CGFloat originX, C
 }
 
 // 布局可见cells
-- (void)layoutVisibleCells
+- (void)updateVisibleCells
 {
     NSRange visibleCellRange = [self getVisibleCellRange];
     
@@ -454,7 +454,7 @@ inline BOOL TYPositionInPointRange(const TYPosition& position,CGFloat originX, C
 - (void)layoutSubviews
 {
     //[super layoutSubviews];
-    [self layoutVisibleCells];
+    [self updateVisibleCells];
     
 //    NSMutableSet *set = _reuseCellsDic[@"cell"];
 //    NSLog(@"visible cell num:%ld",_visibleCellsDic.count);

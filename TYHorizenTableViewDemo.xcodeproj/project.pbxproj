@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		B0307F2D1B12028400094F1A /* content.json in Resources */ = {isa = PBXBuildFile; fileRef = B0307F2C1B12028400094F1A /* content.json */; };
+		B050997A1B100A47004B9929 /* ImageBriefCell.m in Sources */ = {isa = PBXBuildFile; fileRef = B05099791B100A47004B9929 /* ImageBriefCell.m */; };
+		B050997C1B100A6E004B9929 /* ImageBriefCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = B050997B1B100A6E004B9929 /* ImageBriefCell.xib */; };
 		D3613EDB1AFC8D7300ED71E1 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = D3613EDA1AFC8D7300ED71E1 /* main.m */; };
 		D3613EDE1AFC8D7300ED71E1 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = D3613EDD1AFC8D7300ED71E1 /* AppDelegate.m */; };
 		D3613EE11AFC8D7300ED71E1 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D3613EE01AFC8D7300ED71E1 /* ViewController.m */; };
@@ -34,6 +37,10 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		B0307F2C1B12028400094F1A /* content.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = content.json; sourceTree = "<group>"; };
+		B05099781B100A47004B9929 /* ImageBriefCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ImageBriefCell.h; sourceTree = "<group>"; };
+		B05099791B100A47004B9929 /* ImageBriefCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ImageBriefCell.m; sourceTree = "<group>"; };
+		B050997B1B100A6E004B9929 /* ImageBriefCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ImageBriefCell.xib; sourceTree = "<group>"; };
 		D3613ED51AFC8D7300ED71E1 /* TYHorizenTableViewDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TYHorizenTableViewDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D3613ED91AFC8D7300ED71E1 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		D3613EDA1AFC8D7300ED71E1 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
@@ -122,6 +129,7 @@
 		D3613ED81AFC8D7300ED71E1 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				B0307F2C1B12028400094F1A /* content.json */,
 				D3613ED91AFC8D7300ED71E1 /* Info.plist */,
 				D3613EDA1AFC8D7300ED71E1 /* main.m */,
 			);
@@ -164,6 +172,9 @@
 				D37544C91B0B33AC00FBB18A /* ColorXibCell.h */,
 				D37544CA1B0B33AC00FBB18A /* ColorXibCell.m */,
 				D37544CC1B0B33C700FBB18A /* ColorXibCell.xib */,
+				B05099781B100A47004B9929 /* ImageBriefCell.h */,
+				B05099791B100A47004B9929 /* ImageBriefCell.m */,
+				B050997B1B100A6E004B9929 /* ImageBriefCell.xib */,
 			);
 			name = customCell;
 			sourceTree = "<group>";
@@ -248,10 +259,12 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B050997C1B100A6E004B9929 /* ImageBriefCell.xib in Resources */,
 				D3613EE41AFC8D7300ED71E1 /* Main.storyboard in Resources */,
 				D3613EE91AFC8D7300ED71E1 /* LaunchScreen.xib in Resources */,
 				D3613EE61AFC8D7300ED71E1 /* Images.xcassets in Resources */,
 				D37544CD1B0B33C700FBB18A /* ColorXibCell.xib in Resources */,
+				B0307F2D1B12028400094F1A /* content.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -269,6 +282,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B050997A1B100A47004B9929 /* ImageBriefCell.m in Sources */,
 				D37544CB1B0B33AC00FBB18A /* ColorXibCell.m in Sources */,
 				D37544C81B0B326A00FBB18A /* ColorViewCell.m in Sources */,
 				D3613EE11AFC8D7300ED71E1 /* ViewController.m in Sources */,
