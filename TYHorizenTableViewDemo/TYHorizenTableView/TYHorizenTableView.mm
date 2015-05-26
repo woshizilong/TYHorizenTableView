@@ -32,6 +32,12 @@ inline BOOL TYPositionInPointRange(const TYPosition& position,CGFloat originX, C
     NSRange                 _visibleRange;      // 当前可见cell范围
     CGFloat                 _preOffsetX;        // 前一个offset
     
+    CGFloat                 _preLeftIndexOffsetX;
+    CGFloat                 _curLeftIndexOffsetX;
+    
+    CGFloat                 _preRightIndexOffsetX;
+    CGFloat                 _curRightIndexOffsetX;
+    
     struct {
         unsigned int didSelectCellAtIndex   :1;
         unsigned int didDeselectCellAtIndex :1;

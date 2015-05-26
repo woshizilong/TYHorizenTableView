@@ -35,6 +35,8 @@
     // Do any additional setup after loading the view, typically from a nib.
     self.title = @"TYHorizenTableViewDemo";
     
+    self.edgesForExtendedLayout = UIRectEdgeNone;
+    
     [self addTableView];
     
     [self addTableItems];
