@@ -35,8 +35,6 @@ static NSString *reuseColorViewCellId = @"ColorViewCell";
     // 注册cell
     [_horizonTableView registerClass:NSClassFromString(reuseColorViewCellId) forCellReuseIdentifier:reuseColorViewCellId];
     
-    [_horizonTableView registerNibName:reuseColorXibCellId forCellReuseIdentifier:reuseColorXibCellId];
-    
     [_horizonTableView reloadData];
 }
 

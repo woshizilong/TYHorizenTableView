@@ -17,8 +17,9 @@
 
 - (instancetype)initWithReuseIdentifier:(NSString *)reuseIdentifier;
 
-+ (instancetype)cellWithNibName:(NSString *)nibName identifier:(NSString *)reuseIdentifier;
++ (instancetype)cellWithNib:(UINib *)nib identifier:(NSString *)reuseIdentifier;
 
 - (void)setSelected:(BOOL)selected animated:(BOOL)animated;
 
+// 最好在layoutSubviews 中布局
 @end

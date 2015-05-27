@@ -70,12 +70,12 @@ typedef enum {
 - (id)dequeueReusableCellWithIdentifier:(NSString *)identifier;
 
 /**
- *  注册cell 以便自动重用 初始化在这里实现 awakeFromNib
+ *  注册cell 以便自动重用 cell初始化 awakeFromNib
  */
-- (void)registerNibName:(NSString *)nibName forCellReuseIdentifier:(NSString *)identifier;
+- (void)registerNib:(UINib *)nib forCellReuseIdentifier:(NSString *)identifier;
 
 /**
- *  注册cell 以便自动重用 初始化在这里实现 initWithReuseIdentifier
+ *  注册cell 以便自动重用 cell初始化 initWithReuseIdentifier
  */
 - (void)registerClass:(Class)cellClass forCellReuseIdentifier:(NSString *)identifier;
 

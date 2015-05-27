@@ -11,6 +11,7 @@
 
 @interface TYHorizenTableViewCell ()
 @property (nonatomic, assign, readwrite) NSInteger   index;
+@property (nonatomic, copy, readwrite)   NSString   *identifier;
 @end
 
 typedef struct {
@@ -20,8 +21,16 @@ typedef struct {
 
 inline BOOL TYPositionInPointRange(const TYPosition& position,CGFloat originX, CGFloat endX)
 {
-    if (position.originX + position.width >= originX
+    if (position.originX + position.width > originX
         && position.originX < endX){
+        return YES;
+    }
+    return NO;
+}
+
+inline BOOL TYPointInPosition(CGFloat point,const TYPosition& position)
+{
+    if (point >= position.originX && point <= position.originX + position.width) {
         return YES;
     }
     return NO;
@@ -32,11 +41,8 @@ inline BOOL TYPositionInPointRange(const TYPosition& position,CGFloat originX, C
     NSRange                 _visibleRange;      // 当前可见cell范围
     CGFloat                 _preOffsetX;        // 前一个offset
     
-    CGFloat                 _preLeftIndexOffsetX;
-    CGFloat                 _curLeftIndexOffsetX;
-    
-    CGFloat                 _preRightIndexOffsetX;
-    CGFloat                 _curRightIndexOffsetX;
+    TYPosition              _leftPostion;
+    TYPosition              _rightPositon;
     
     struct {
         unsigned int didSelectCellAtIndex   :1;
@@ -164,10 +170,14 @@ inline BOOL TYPositionInPointRange(const TYPosition& position,CGFloat originX, C
         return reuseCell;
     }
     
+    if (set == nil) {
+        set = [NSMutableSet setWithCapacity:_maxReuseCount];
+        _reuseCellsDic[identifier] = set;
+    }
     id registerId = nil;
     if (_reuseIdentifys && (registerId = [_reuseIdentifys objectForKey:identifier])) {
-        if ([registerId isKindOfClass:[NSString class]]) {
-            return [TYHorizenTableViewCell cellWithNibName:registerId identifier:identifier];
+        if ([registerId isKindOfClass:[UINib class]]) {
+            return [TYHorizenTableViewCell cellWithNib:registerId identifier:identifier];
         }else {
             return [[registerId alloc]initWithReuseIdentifier:identifier];
         }
@@ -190,9 +200,9 @@ inline BOOL TYPositionInPointRange(const TYPosition& position,CGFloat originX, C
     self.reuseIdentifys[identifier] = cellClass;
 }
 
-- (void)registerNibName:(NSString *)nibName forCellReuseIdentifier:(NSString *)identifier
+- (void)registerNib:(UINib *)nib forCellReuseIdentifier:(NSString *)identifier
 {
-    self.reuseIdentifys[identifier] = nibName;
+    self.reuseIdentifys[identifier] = nib;
 }
 
 - (void)scrollToIndex:(NSInteger)index atPosition:(TYHorizenTableViewPosition)position animated:(BOOL)animated
@@ -289,6 +299,14 @@ inline BOOL TYPositionInPointRange(const TYPosition& position,CGFloat originX, C
 // 布局可见cells
 - (void)updateVisibleCells
 {
+    CGFloat offsetLeftX = self.contentOffset.x;
+    CGFloat offsetRightX = offsetLeftX + CGRectGetWidth(self.frame);
+    
+    if (TYPointInPosition(offsetLeftX, _leftPostion)
+        && TYPointInPosition(offsetRightX, _rightPositon) ) {
+        return;
+    }
+    
     NSRange visibleCellRange = [self getVisibleCellRange];
     
     // 优化性能
@@ -296,6 +314,9 @@ inline BOOL TYPositionInPointRange(const TYPosition& position,CGFloat originX, C
         return;
     }
     _visibleRange = visibleCellRange;
+    
+    _leftPostion = _vecCellPositions[visibleCellRange.location];
+    _rightPositon = _vecCellPositions[NSMaxRange(visibleCellRange)-1];
 
     [_unVisibelCellKeys addObjectsFromArray:[_visibleCellsDic allKeys]];
     for (NSInteger index = visibleCellRange.location; index < NSMaxRange(visibleCellRange); ++index) {
@@ -306,8 +327,7 @@ inline BOOL TYPositionInPointRange(const TYPosition& position,CGFloat originX, C
             
             // 添加cell到index位置
             [self addCell:cell atIndex:index];
-            
-        }else{
+        }else {
             [_unVisibelCellKeys removeObject:@(index)];
         }
         
@@ -318,7 +338,6 @@ inline BOOL TYPositionInPointRange(const TYPosition& position,CGFloat originX, C
         }
     }
     
-    // 把多余不显示的加入重用池
     for (NSNumber *index in _unVisibelCellKeys) {
         TYHorizenTableViewCell *cell = [_visibleCellsDic objectForKey:index];
         if (cell) {
@@ -328,7 +347,6 @@ inline BOOL TYPositionInPointRange(const TYPosition& position,CGFloat originX, C
     
     [_visibleCellsDic removeObjectsForKeys:_unVisibelCellKeys];
     [_unVisibelCellKeys removeAllObjects];
-    
 }
 
 // 获取可见cells的rang
@@ -337,7 +355,7 @@ inline BOOL TYPositionInPointRange(const TYPosition& position,CGFloat originX, C
     BOOL isOverVisibleRect = NO; // 优化次数
     // 可见区域rect
     CGFloat visibleOrignX = self.contentOffset.x;
-    CGFloat visibleEndX = visibleOrignX + CGRectGetWidth(self.frame);
+    CGFloat visibleEndX = visibleOrignX + self.frame.size.width;
     
     NSInteger index = 0;
     if (visibleOrignX > _preOffsetX) {

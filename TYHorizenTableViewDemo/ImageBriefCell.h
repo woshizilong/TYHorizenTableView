@@ -9,7 +9,7 @@
 #import "TYHorizenTableViewCell.h"
 
 @interface ImageBriefCell : TYHorizenTableViewCell
-@property (weak, nonatomic) IBOutlet UIImageView *imageView;
+@property (strong, nonatomic) UIImageView *imageView;
 
-@property (weak, nonatomic) IBOutlet UILabel *breifLabel;
+@property (strong, nonatomic) UILabel *breifLabel;
 @end

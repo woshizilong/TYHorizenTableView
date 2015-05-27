@@ -9,6 +9,7 @@
 #import "CustomViewController.h"
 #import "TYHorizenTableView.h"
 #import "ImageBriefCell.h"
+#import "SDWebImageDecoder.h"
 
 @interface CustomViewController ()<TYHorizenTableViewDataSource,TYHorizenTableViewDelegate>
 @property (nonatomic, weak) TYHorizenTableView  *horizonTableView;
@@ -28,7 +29,8 @@ static NSString *reuseImageBriefCellId = @"ImageBriefCell";
     self.imageArray = [NSMutableArray array];
     for (int index = 0; index < 6; ++index) {
         NSString *imageName = [NSString stringWithFormat:@"jianw3-%d.jpg",index];
-        [self.imageArray addObject:imageName];
+        // image 解压缩 
+        [self.imageArray addObject:[UIImage decodedImageWithImage:[UIImage imageNamed:imageName]]];
     }
     
      NSString *path = [[NSBundle mainBundle] pathForResource:@"content" ofType:@"json"];
@@ -40,19 +42,20 @@ static NSString *reuseImageBriefCellId = @"ImageBriefCell";
     
     [self addHorizenTableView];
     
-    [_horizonTableView registerNibName:reuseImageBriefCellId forCellReuseIdentifier:reuseImageBriefCellId];
-    
+//     UINib *nib = [UINib nibWithNibName:reuseImageBriefCellId bundle:nil];
+//    [_horizonTableView registerNib:nib forCellReuseIdentifier:reuseImageBriefCellId];
+    [_horizonTableView registerClass:[ImageBriefCell class] forCellReuseIdentifier:reuseImageBriefCellId];
     [_horizonTableView reloadData];
 }
 
 - (void)addHorizenTableView
 {
     TYHorizenTableView *horizonTableView = [[TYHorizenTableView alloc]initWithFrame:CGRectMake(0, 0, CGRectGetWidth(self.view.frame), 280)];
-    //horizonTableView.cellSpacing
+    //horizonTableView.cellSpacing = 8;
     //horizonTableView.edgeInsets
     horizonTableView.delegate = self;
     horizonTableView.dataSource = self;
-    horizonTableView.pagingEnabled = YES;
+    //horizonTableView.pagingEnabled = YES;
     
     [self.view addSubview:horizonTableView];
     _horizonTableView = horizonTableView;
@@ -68,8 +71,9 @@ static NSString *reuseImageBriefCellId = @"ImageBriefCell";
 - (TYHorizenTableViewCell *)horizenTableView:(TYHorizenTableView *)horizenTableView cellForItemAtIndex:(NSInteger)index
 {
     ImageBriefCell *cell = [horizenTableView dequeueReusableCellWithIdentifier:reuseImageBriefCellId];
-    
-    cell.imageView.image = [UIImage imageNamed:self.imageArray[index%6]];
+
+    // 如果没有register 需要 if(cell == nil)
+    cell.imageView.image = self.imageArray[index%6];
     cell.breifLabel.text = self.briefArray[index%6];
     
     return cell;

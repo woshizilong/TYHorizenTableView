@@ -29,10 +29,9 @@
 
 }
 
-+ (instancetype)cellWithNibName:(NSString *)nibName identifier:(NSString *)reuseIdentifier
++ (instancetype)cellWithNib:(UINib *)nib identifier:(NSString *)reuseIdentifier;
 {
-    NSArray *nibs = [[NSBundle mainBundle] loadNibNamed:nibName owner:self options:nil];
-    TYHorizenTableViewCell *cell = [nibs firstObject];
+    TYHorizenTableViewCell *cell = [(UINib *)nib instantiateWithOwner:self options:nil].firstObject;
     cell.identifier = reuseIdentifier;
     return cell;
 }
