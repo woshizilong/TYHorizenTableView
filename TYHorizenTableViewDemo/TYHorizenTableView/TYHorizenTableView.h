@@ -56,7 +56,6 @@ typedef enum {
 @end
 
 @interface TYHorizenTableView : UIScrollView
-
 @property (nonatomic, assign) id<TYHorizenTableViewDataSource>  dataSource;
 @property (nonatomic, assign) id<TYHorizenTableViewDelegate>    delegate;
 
@@ -109,6 +108,11 @@ typedef enum {
  *  重新读取数据
  */
 - (void)reloadData;
+
+/**
+ *  重新读取指定index数据
+ */
+- (void)reloadItemAtIndex:(NSInteger)index;
 
 @end
 

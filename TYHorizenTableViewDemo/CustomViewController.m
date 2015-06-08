@@ -29,7 +29,7 @@ static NSString *reuseImageBriefCellId = @"ImageBriefCell";
     self.imageArray = [NSMutableArray array];
     for (int index = 0; index < 6; ++index) {
         NSString *imageName = [NSString stringWithFormat:@"jianw3-%d.jpg",index];
-        // image 解压缩 
+        // image 提前解压缩 防止 cell滚动时解压缩卡
         [self.imageArray addObject:[UIImage decodedImageWithImage:[UIImage imageNamed:imageName]]];
     }
     
@@ -42,9 +42,8 @@ static NSString *reuseImageBriefCellId = @"ImageBriefCell";
     
     [self addHorizenTableView];
     
-//     UINib *nib = [UINib nibWithNibName:reuseImageBriefCellId bundle:nil];
-//    [_horizonTableView registerNib:nib forCellReuseIdentifier:reuseImageBriefCellId];
     [_horizonTableView registerClass:[ImageBriefCell class] forCellReuseIdentifier:reuseImageBriefCellId];
+    
     [_horizonTableView reloadData];
 }
 
@@ -73,8 +72,8 @@ static NSString *reuseImageBriefCellId = @"ImageBriefCell";
     ImageBriefCell *cell = [horizenTableView dequeueReusableCellWithIdentifier:reuseImageBriefCellId];
 
     // 如果没有register 需要 if(cell == nil)
-    cell.imageView.image = self.imageArray[index%6];
-    cell.breifLabel.text = self.briefArray[index%6];
+    cell.imageView.image = _imageArray[index%6];
+    cell.breifLabel.text = _briefArray[index%6];
     
     return cell;
 }

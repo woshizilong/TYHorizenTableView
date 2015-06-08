@@ -19,7 +19,7 @@ typedef struct {
     CGFloat width;
 }TYPosition;
 
-inline BOOL TYPositionInPointRange(const TYPosition& position,CGFloat originX, CGFloat endX)
+NS_INLINE BOOL TYPositionInPointRange(const TYPosition& position,CGFloat originX, CGFloat endX)
 {
     if (position.originX + position.width > originX
         && position.originX < endX){
@@ -28,7 +28,7 @@ inline BOOL TYPositionInPointRange(const TYPosition& position,CGFloat originX, C
     return NO;
 }
 
-inline BOOL TYPointInPosition(CGFloat point,const TYPosition& position)
+NS_INLINE BOOL TYPointInPosition(CGFloat point,const TYPosition& position)
 {
     if (point >= position.originX && point <= position.originX + position.width) {
         return YES;
@@ -53,11 +53,11 @@ inline BOOL TYPointInPosition(CGFloat point,const TYPosition& position)
     }_delegateFlags;
 }
 
-@property (nonatomic, strong) NSMutableDictionary   *visibleCellsDic; // 显示的cells字典
-@property (nonatomic, strong) NSMutableDictionary   *reuseCellsDic;   // 可重用的cell字典
-@property (nonatomic, strong) NSMutableDictionary   *reuseIdentifys;
-@property (nonatomic, assign) NSInteger             selectedIndex; // 选中的cell
-@property (nonatomic, strong) UITapGestureRecognizer* singleTap;   //点击手势
+@property (nonatomic, strong) NSMutableDictionary   *visibleCellsDic;   // 显示的cells字典
+@property (nonatomic, strong) NSMutableDictionary   *reuseCellsDic;     // 可重用的cell字典
+@property (nonatomic, strong) NSMutableDictionary   *reuseIdentifys;    // 注册的class或者nib
+@property (nonatomic, assign) NSInteger             selectedIndex;      // 选中的cell
+@property (nonatomic, strong) UITapGestureRecognizer* singleTap;        //点击手势
 @property (nonatomic, strong) NSMutableArray *unVisibelCellKeys;
 
 @end
@@ -158,6 +158,18 @@ inline BOOL TYPointInPosition(CGFloat point,const TYPosition& position)
 }
 
 #pragma mark - public method
+
+- (void)reloadItemAtIndex:(NSInteger)index
+{
+    TYHorizenTableViewCell *cell = _visibleCellsDic[@(index)];
+    if (cell) {
+        [self enqueueUnuseCell:cell];
+    }
+    cell = [_dataSource horizenTableView:self cellForItemAtIndex:index];
+    
+    // 添加cell到index位置
+    [self addCell:cell atIndex:index];
+}
 
 - (TYHorizenTableViewCell *)dequeueReusableCellWithIdentifier:(NSString *)identifier
 {
@@ -281,7 +293,9 @@ inline BOOL TYPointInPosition(CGFloat point,const TYPosition& position)
     CGFloat contentWidth  = _edgeInsets.left;
     CGFloat contentHeight = CGRectGetHeight(self.frame);
     
-    _vecCellPositions.reserve(numberOfItems);
+    if (_vecCellPositions.size() == 0) {
+        _vecCellPositions.reserve(numberOfItems);
+    }
     
     // 计算所有cell的frame
     for (int index = 0; index < numberOfItems; ++index) {
@@ -302,12 +316,14 @@ inline BOOL TYPointInPosition(CGFloat point,const TYPosition& position)
     CGFloat offsetLeftX = self.contentOffset.x;
     CGFloat offsetRightX = offsetLeftX + CGRectGetWidth(self.frame);
     
+    // 优化性能
     if (TYPointInPosition(offsetLeftX, _leftPostion)
         && TYPointInPosition(offsetRightX, _rightPositon) ) {
         return;
     }
     
-    NSRange visibleCellRange = [self getVisibleCellRange];
+    // 获取可见range
+    NSRange visibleCellRange = [self getVisibleCellRangeWithVisibleOrignX:offsetLeftX visibleEndX:offsetRightX];
     
     // 优化性能
     if (NSEqualRanges(_visibleRange, visibleCellRange)) {
@@ -350,13 +366,8 @@ inline BOOL TYPointInPosition(CGFloat point,const TYPosition& position)
 }
 
 // 获取可见cells的rang
-- (NSRange)getVisibleCellRange
+- (NSRange)getVisibleCellRangeWithVisibleOrignX:(CGFloat)visibleOrignX visibleEndX:(CGFloat)visibleEndX
 {
-    BOOL isOverVisibleRect = NO; // 优化次数
-    // 可见区域rect
-    CGFloat visibleOrignX = self.contentOffset.x;
-    CGFloat visibleEndX = visibleOrignX + self.frame.size.width;
-    
     NSInteger index = 0;
     if (visibleOrignX > _preOffsetX) {
         index = _visibleRange.location;
@@ -369,11 +380,12 @@ inline BOOL TYPointInPosition(CGFloat point,const TYPosition& position)
     }
     _preOffsetX = visibleOrignX;
     
+    BOOL isOverVisibleRect = NO; // 优化次数
     NSInteger startIndex = 0, endIndex = 0;
     NSInteger count = _vecCellPositions.size();
     
     for (;index < count; ++index) {
-        if (TYPositionInPointRange(_vecCellPositions[index], visibleOrignX, visibleEndX)) {
+        if (TYPositionInPointRange(_vecCellPositions.at(index), visibleOrignX, visibleEndX)) {
             // 在可见区域
             if (!isOverVisibleRect) {
                 startIndex = index;
