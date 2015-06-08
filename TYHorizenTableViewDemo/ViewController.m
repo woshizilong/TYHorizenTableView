@@ -9,6 +9,7 @@
 #import "ViewController.h"
 #import "ColorViewController.h"
 #import "CustomViewController.h"
+#import "AttribtedLabelController.h"
 
 @interface tableViewItem : NSObject
 
@@ -67,6 +68,8 @@
     [self addTableItemWithTitle:@"colorViewCell" detailText:@"UITableView 和 TYHorizenTableView 滑动对比" destVcClass:[ColorViewController class]];
     
     [self addTableItemWithTitle:@"customImageCell" detailText:@"自定义Imagecell显示" destVcClass:[CustomViewController class]];
+    
+    [self addTableItemWithTitle:@"AttributedLableCell" detailText:@"自定义Label" destVcClass:[AttribtedLabelController class]];
 
 }
 

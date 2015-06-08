@@ -54,7 +54,7 @@ static NSString *reuseImageBriefCellId = @"ImageBriefCell";
     //horizonTableView.edgeInsets
     horizonTableView.delegate = self;
     horizonTableView.dataSource = self;
-    //horizonTableView.pagingEnabled = YES;
+    horizonTableView.pagingEnabled = YES;
     
     [self.view addSubview:horizonTableView];
     _horizonTableView = horizonTableView;
