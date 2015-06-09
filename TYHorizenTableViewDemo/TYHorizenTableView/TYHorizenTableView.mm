@@ -329,11 +329,12 @@ NS_INLINE BOOL TYPointInPosition(CGFloat point,const TYPosition& position)
     if (NSEqualRanges(_visibleRange, visibleCellRange)) {
         return;
     }
+
     _visibleRange = visibleCellRange;
     
     _leftPostion = _vecCellPositions[visibleCellRange.location];
     _rightPositon = _vecCellPositions[NSMaxRange(visibleCellRange)-1];
-
+    
     [_unVisibelCellKeys addObjectsFromArray:[_visibleCellsDic allKeys]];
     for (NSInteger index = visibleCellRange.location; index < NSMaxRange(visibleCellRange); ++index) {
         

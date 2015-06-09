@@ -17,7 +17,7 @@
 
 @interface AttribtedLabelController ()<TYHorizenTableViewDataSource,TYHorizenTableViewDelegate>
 @property (nonatomic, weak) TYHorizenTableView  *horizonTableView;
-@property (nonatomic, strong) NSAttributedString *attString;
+@property (nonatomic, strong) TYTextContainer *textContainer;
 @end
 
 static NSString *reuseAttribtedLabelCellId = @"AttributedLableCell";
@@ -77,7 +77,7 @@ static NSString *reuseAttribtedLabelCellId = @"AttributedLableCell";
     textStorage.font = [UIFont systemFontOfSize:18];
     [attStringCreater addTextStorage:textStorage];
     
-    _attString = [attStringCreater createAttributedString];
+    _textContainer = [attStringCreater createTextContainerWithTextWidth:CGRectGetWidth(self.view.frame)-20];
 }
 
 - (void)addHorizenTableView
@@ -98,7 +98,7 @@ static NSString *reuseAttribtedLabelCellId = @"AttributedLableCell";
 
 - (NSInteger)horizenTableViewOnNumberOfItems:(TYHorizenTableView *)horizenTableView
 {
-    return 20;//self.imageArray.count;
+    return 20;
 }
 
 - (TYHorizenTableViewCell *)horizenTableView:(TYHorizenTableView *)horizenTableView cellForItemAtIndex:(NSInteger)index
@@ -106,9 +106,8 @@ static NSString *reuseAttribtedLabelCellId = @"AttributedLableCell";
     AttributedLableCell *cell = [horizenTableView dequeueReusableCellWithIdentifier:reuseAttribtedLabelCellId];
     
     // 如果没有register 需要 if(cell == nil)
-    cell.label.attributedText = _attString;
-    
-    [cell.label setFrameWithOrign:CGPointZero Width:CGRectGetWidth(self.view.frame)];
+    cell.label.textContainer = _textContainer;
+    [cell.label setFrameWithOrign:CGPointMake(10, 20) Width:CGRectGetWidth(self.view.frame)-20];
     
     return cell;
 }
