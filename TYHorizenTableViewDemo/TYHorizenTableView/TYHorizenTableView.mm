@@ -492,9 +492,9 @@ NS_INLINE BOOL TYPointInPosition(CGFloat point,const TYPosition& position)
     //[super layoutSubviews];
     [self updateVisibleCells];
     
-    NSMutableSet *set = _reuseCellsDic[@"AttributedLableCell"];
-    NSLog(@"visible cell num:%ld",_visibleCellsDic.count);
-    NSLog(@"reuse cell num:%ld",set.count);
+//    NSMutableSet *set = _reuseCellsDic[@"AttributedLableCell"];
+//    NSLog(@"visible cell num:%ld",_visibleCellsDic.count);
+//    NSLog(@"reuse cell num:%ld",set.count);
 }
 
 - (void)dealloc
