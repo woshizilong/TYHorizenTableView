@@ -50,8 +50,8 @@ static NSString *reuseImageBriefCellId = @"ImageBriefCell";
 - (void)addHorizenTableView
 {
     TYHorizenTableView *horizonTableView = [[TYHorizenTableView alloc]initWithFrame:CGRectMake(0, 0, CGRectGetWidth(self.view.frame), 280)];
-    //horizonTableView.cellSpacing = 8;
-    //horizonTableView.edgeInsets
+    horizonTableView.cellSpacing = 16;
+    horizonTableView.edgeInsets = UIEdgeInsetsMake(0, 8, 0, 8);
     horizonTableView.delegate = self;
     horizonTableView.dataSource = self;
     horizonTableView.pagingEnabled = YES;
@@ -64,7 +64,7 @@ static NSString *reuseImageBriefCellId = @"ImageBriefCell";
 
 - (NSInteger)horizenTableViewOnNumberOfItems:(TYHorizenTableView *)horizenTableView
 {
-    return 20;//self.imageArray.count;
+    return 20;
 }
 
 - (TYHorizenTableViewCell *)horizenTableView:(TYHorizenTableView *)horizenTableView cellForItemAtIndex:(NSInteger)index
@@ -80,7 +80,7 @@ static NSString *reuseImageBriefCellId = @"ImageBriefCell";
 
 - (CGFloat)horizenTableView:(TYHorizenTableView *)horizenTableView widthForItemAtIndex:(NSInteger)index
 {
-    return CGRectGetWidth(self.horizonTableView.frame);
+    return CGRectGetWidth(self.horizonTableView.frame)-16;
 }
 
 - (void)didReceiveMemoryWarning {

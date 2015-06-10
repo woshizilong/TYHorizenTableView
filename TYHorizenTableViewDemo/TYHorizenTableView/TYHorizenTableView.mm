@@ -9,11 +9,6 @@
 #import "TYHorizenTableView.h"
 #import <vector>
 
-@interface TYHorizenTableViewCell ()
-@property (nonatomic, assign, readwrite) NSInteger   index;
-@property (nonatomic, copy, readwrite)   NSString   *identifier;
-@end
-
 typedef struct {
     CGFloat originX;
     CGFloat width;
@@ -36,6 +31,45 @@ NS_INLINE BOOL TYPointInPosition(CGFloat point,const TYPosition& position)
     return NO;
 }
 
+NS_INLINE NSRange TYIntersectionRange(NSRange range1, NSRange range2,NSRange& range1Differ,NSRange& range2Differ)
+{
+    // 计算range
+    NSRange interRange = NSIntersectionRange(range1, range2);
+    if (interRange.length == 0) {
+        // 有交集
+        range1Differ = range1;
+        range2Differ = range2;
+        return interRange;
+    }
+    
+    if (range1.location == range2.location) {
+        NSInteger range1MaxRange = NSMaxRange(range1);
+        NSInteger range2MaxRange = NSMaxRange(range2);
+        if (range1MaxRange < range2MaxRange) {
+            range1Differ = NSMakeRange(range1.location, 0);
+            range2Differ = NSMakeRange(range1MaxRange, range2MaxRange-range1MaxRange);
+        }else {
+            range1Differ = NSMakeRange(range2MaxRange,range1MaxRange - range2MaxRange);
+            range2Differ = NSMakeRange(range2.location, 0);
+        }
+        return interRange;
+    }
+    
+    if (range1.location < range2.location) {
+        range1Differ = NSMakeRange(range1.location, interRange.location - range1.location);
+        range2Differ = NSMakeRange(NSMaxRange(interRange), NSMaxRange(range2) - NSMaxRange(interRange));
+    }else {
+        range2Differ = NSMakeRange(range2.location, interRange.location - range2.location);
+        range1Differ = NSMakeRange(NSMaxRange(interRange), NSMaxRange(range1) - NSMaxRange(interRange));
+    }
+    return interRange;
+}
+
+@interface TYHorizenTableViewCell ()
+@property (nonatomic, assign, readwrite) NSInteger   index;
+@property (nonatomic, copy, readwrite)   NSString   *identifier;
+@end
+
 @interface TYHorizenTableView ()<UIScrollViewDelegate>{
     std::vector<TYPosition> _vecCellPositions;  // 所有cell的位置
     NSRange                 _visibleRange;      // 当前可见cell范围
@@ -57,7 +91,7 @@ NS_INLINE BOOL TYPointInPosition(CGFloat point,const TYPosition& position)
 @property (nonatomic, strong) NSMutableDictionary   *reuseCellsDic;     // 可重用的cell字典
 @property (nonatomic, strong) NSMutableDictionary   *reuseIdentifys;    // 注册的class或者nib
 @property (nonatomic, assign) NSInteger             selectedIndex;      // 选中的cell
-@property (nonatomic, strong) UITapGestureRecognizer* singleTap;        //点击手势
+@property (nonatomic, strong) UITapGestureRecognizer *singleTap;        //点击手势
 @property (nonatomic, strong) NSMutableArray *unVisibelCellKeys;
 
 @end
@@ -319,6 +353,7 @@ NS_INLINE BOOL TYPointInPosition(CGFloat point,const TYPosition& position)
     // 优化性能
     if (TYPointInPosition(offsetLeftX, _leftPostion)
         && TYPointInPosition(offsetRightX, _rightPositon) ) {
+        _preOffsetX = offsetLeftX;
         return;
     }
     
@@ -330,11 +365,54 @@ NS_INLINE BOOL TYPointInPosition(CGFloat point,const TYPosition& position)
         return;
     }
 
+    NSRange preVisibleCellRange = _visibleRange;
     _visibleRange = visibleCellRange;
     
     _leftPostion = _vecCellPositions[visibleCellRange.location];
     _rightPositon = _vecCellPositions[NSMaxRange(visibleCellRange)-1];
     
+    //[self dealWithCellWithVisibleRange:visibleCellRange];
+    [self dealWithCellWithVisibleRange:visibleCellRange preVisibleRange:preVisibleCellRange];
+
+//    NSMutableSet *set = _reuseCellsDic[_reuseIdentifys.allKeys.firstObject];
+//    NSLog(@"visible cell num:%d",_visibleCellsDic.count);
+//    NSLog(@"reuse cell num:%d",set.count);
+}
+
+- (void)dealWithCellWithVisibleRange:(NSRange)visibleCellRange preVisibleRange:(NSRange)preVisibleRange
+{
+     NSRange willDisapperRange, willDisplayRange;
+    
+    TYIntersectionRange(preVisibleRange, visibleCellRange, willDisapperRange, willDisplayRange);
+    
+    for (NSInteger index = willDisapperRange.location; index < NSMaxRange(willDisapperRange); ++index) {
+        TYHorizenTableViewCell *cell = [_visibleCellsDic objectForKey:@(index)];
+        if (cell) {
+            [self enqueueUnuseCell:cell];
+            
+            [_visibleCellsDic removeObjectForKey:@(index)];
+        }
+    }
+    
+    for (NSInteger index = willDisplayRange.location; index < NSMaxRange(willDisplayRange); ++index) {
+        TYHorizenTableViewCell *cell = [_visibleCellsDic objectForKey:@(index)];
+        if (!cell) {
+            cell = [_dataSource horizenTableView:self cellForItemAtIndex:index];
+            // 添加cell到index位置
+            [self addCell:cell atIndex:index];
+        }
+        
+        if (_selectedIndex == index) {
+            [cell setSelected:YES animated:NO];
+        }else if (cell.selected){
+            [cell setSelected:NO animated:NO];
+        }
+    }
+    
+}
+
+- (void)dealWithCellWithVisibleRange:(NSRange)visibleCellRange
+{
     [_unVisibelCellKeys addObjectsFromArray:[_visibleCellsDic allKeys]];
     for (NSInteger index = visibleCellRange.location; index < NSMaxRange(visibleCellRange); ++index) {
         
@@ -444,6 +522,7 @@ NS_INLINE BOOL TYPointInPosition(CGFloat point,const TYPosition& position)
     if (set.count < _maxReuseCount){
         cell.index = -1;
         cell.hidden = YES;
+        [cell didDequeUnuseCell];
         [set addObject:cell];
     }else {
         [cell removeFromSuperview];
@@ -492,10 +571,6 @@ NS_INLINE BOOL TYPointInPosition(CGFloat point,const TYPosition& position)
 {
     //[super layoutSubviews];
     [self updateVisibleCells];
-    
-//    NSMutableSet *set = _reuseCellsDic[@"AttributedLableCell"];
-//    NSLog(@"visible cell num:%ld",_visibleCellsDic.count);
-//    NSLog(@"reuse cell num:%ld",set.count);
 }
 
 - (void)dealloc

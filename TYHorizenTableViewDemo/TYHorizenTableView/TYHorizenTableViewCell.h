@@ -21,6 +21,9 @@
 
 - (void)setSelected:(BOOL)selected animated:(BOOL)animated;
 
+// 在这个函数中reset Cell 释放不用内存
+- (void)didDequeUnuseCell;
+
 // 最好在layoutSubviews 中布局
 
 @end

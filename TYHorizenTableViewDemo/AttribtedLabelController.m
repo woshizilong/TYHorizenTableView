@@ -88,7 +88,6 @@ static NSString *reuseAttribtedLabelCellId = @"AttributedLableCell";
     horizonTableView.delegate = self;
     horizonTableView.dataSource = self;
     horizonTableView.pagingEnabled = YES;
-    horizonTableView.maxReuseCount = 1;
     
     [self.view addSubview:horizonTableView];
     _horizonTableView = horizonTableView;
@@ -114,7 +113,7 @@ static NSString *reuseAttribtedLabelCellId = @"AttributedLableCell";
 
 - (CGFloat)horizenTableView:(TYHorizenTableView *)horizenTableView widthForItemAtIndex:(NSInteger)index
 {
-    return CGRectGetWidth(self.horizonTableView.frame);
+    return CGRectGetWidth(horizenTableView.frame);
 }
 
 - (void)didReceiveMemoryWarning {
