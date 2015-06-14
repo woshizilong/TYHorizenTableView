@@ -56,9 +56,13 @@ typedef enum {
 @end
 
 @interface TYHorizenTableView : UIScrollView
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored"-Wobjc-property-synthesis"
 @property (nonatomic, assign) id<TYHorizenTableViewDataSource>  dataSource;
 @property (nonatomic, assign) id<TYHorizenTableViewDelegate>    delegate;
+#pragma clang diagnostic pop
 
+//@property (nonatomic, assign) CGFloat           cellWidth;    // cell的宽度
 @property (nonatomic, assign) CGFloat           cellSpacing;  // cell之间间隔
 @property (nonatomic, assign) UIEdgeInsets      edgeInsets;   // 四边间距
 @property (nonatomic, assign) NSInteger         maxReuseCount;// 最大可重用cell数 默认2
