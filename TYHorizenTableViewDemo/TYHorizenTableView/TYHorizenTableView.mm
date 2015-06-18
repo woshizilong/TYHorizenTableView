@@ -99,8 +99,6 @@ NS_INLINE NSRange TYIntersectionRange(NSRange range1, NSRange range2,NSRange& ra
 
 @implementation TYHorizenTableView
 
-#pragma mark - init
-
 - (instancetype)initWithFrame:(CGRect)frame
 {
     if (self = [super initWithFrame:frame]) {
@@ -116,6 +114,8 @@ NS_INLINE NSRange TYIntersectionRange(NSRange range1, NSRange range2,NSRange& ra
     }
     return self;
 }
+
+#pragma mark - setup
 
 - (void)setPropertys
 {
@@ -155,18 +155,6 @@ NS_INLINE NSRange TYIntersectionRange(NSRange range1, NSRange range2,NSRange& ra
     
 }
 
-- (void)reloadData
-{
-    // 重置属性
-    [self resetPropertys];
-    
-    // 计算所有cell的位置
-    [self calculateCellPositions];
-    
-    // 布局所有可见cell frame
-    [self updateVisibleCells];
-}
-
 - (void)addSingleTapGesture
 {
     if (_singleTap == nil) {
@@ -191,6 +179,18 @@ NS_INLINE NSRange TYIntersectionRange(NSRange range1, NSRange range2,NSRange& ra
 }
 
 #pragma mark - public method
+
+- (void)reloadData
+{
+    // 重置属性
+    [self resetPropertys];
+    
+    // 计算所有cell的位置
+    [self calculateCellPositions];
+    
+    // 布局所有可见cell frame
+    [self updateVisibleCells];
+}
 
 - (void)reloadItemAtIndex:(NSInteger)index
 {
@@ -371,7 +371,7 @@ NS_INLINE NSRange TYIntersectionRange(NSRange range1, NSRange range2,NSRange& ra
     self.contentSize = CGSizeMake(contentWidth, contentHeight);
 }
 
-// 布局可见cells
+// 更新可见cells
 - (void)updateVisibleCells
 {
     CGFloat offsetLeftX = self.contentOffset.x;
@@ -398,12 +398,12 @@ NS_INLINE NSRange TYIntersectionRange(NSRange range1, NSRange range2,NSRange& ra
     _leftPostion = [self TYPositonWithIndex:visibleCellRange.location];
     _rightPositon = [self TYPositonWithIndex:NSMaxRange(visibleCellRange)-1];
     
-    [self dealWithCellWithVisibleRange:visibleCellRange preVisibleRange:preVisibleCellRange];
+    [self layoutCellWithVisibleRange:visibleCellRange preVisibleRange:preVisibleCellRange];
 
     //[self printVisibleAndReuseCellCount];
 }
 
-// 获取可见cells的rang
+// 获取可见cells的range
 - (NSRange)getVisibleCellRangWithVisibleOrignX:(CGFloat)visibleOrignX visibleEndX:(CGFloat)visibleEndX
 {
     if (_cellWidth > 0) {
@@ -466,8 +466,8 @@ NS_INLINE NSRange TYIntersectionRange(NSRange range1, NSRange range2,NSRange& ra
     return NSMakeRange(startIndex, endIndex - startIndex);
 }
 
-
-- (void)dealWithCellWithVisibleRange:(NSRange)visibleCellRange preVisibleRange:(NSRange)preVisibleRange
+// 计算range 交集与差集,然后布局
+- (void)layoutCellWithVisibleRange:(NSRange)visibleCellRange preVisibleRange:(NSRange)preVisibleRange
 {
      NSRange willDisapperRange, willDisplayRange;
     
@@ -543,6 +543,7 @@ NS_INLINE NSRange TYIntersectionRange(NSRange range1, NSRange range2,NSRange& ra
     }
 }
 
+#pragma mark - action Handle
 // 点击事件
 - (void)singleTapGesture:(UITapGestureRecognizer *)sender
 {
