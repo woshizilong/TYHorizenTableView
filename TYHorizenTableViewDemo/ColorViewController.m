@@ -44,6 +44,7 @@ static NSString *reuseColorViewCellId = @"ColorViewCell";
     //horizonTableView.cellSpacing = 16;
     horizonTableView.delegate = self;
     horizonTableView.dataSource = self;
+    horizonTableView.cellWidth = 140;
     
     [self.view addSubview:horizonTableView];
     _horizonTableView = horizonTableView;

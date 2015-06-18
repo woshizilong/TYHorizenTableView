@@ -78,6 +78,8 @@ NS_INLINE NSRange TYIntersectionRange(NSRange range1, NSRange range2,NSRange& ra
     TYPosition              _leftPostion;
     TYPosition              _rightPositon;
     
+    NSInteger               _cellCount;
+    
     struct {
         unsigned int didSelectCellAtIndex   :1;
         unsigned int didDeselectCellAtIndex :1;
@@ -92,7 +94,7 @@ NS_INLINE NSRange TYIntersectionRange(NSRange range1, NSRange range2,NSRange& ra
 @property (nonatomic, strong) NSMutableDictionary   *reuseIdentifys;    // 注册的class或者nib
 @property (nonatomic, assign) NSInteger             selectedIndex;      // 选中的cell
 @property (nonatomic, strong) UITapGestureRecognizer *singleTap;        //点击手势
-@property (nonatomic, strong) NSMutableArray *unVisibelCellKeys;
+//@property (nonatomic, strong) NSMutableArray *unVisibelCellKeys;
 
 @end
 
@@ -121,7 +123,7 @@ NS_INLINE NSRange TYIntersectionRange(NSRange range1, NSRange range2,NSRange& ra
     self.backgroundColor = [UIColor whiteColor];
     _visibleCellsDic = [NSMutableDictionary dictionary];
     _reuseCellsDic = [NSMutableDictionary dictionary];
-    _unVisibelCellKeys = [NSMutableArray array];
+//    _unVisibelCellKeys = [NSMutableArray array];
     _vecCellPositions = std::vector<TYPosition>();
     _maxReuseCount = 2;
     _selectedIndex = -1;
@@ -139,7 +141,7 @@ NS_INLINE NSRange TYIntersectionRange(NSRange range1, NSRange range2,NSRange& ra
     }
     
     [_reuseCellsDic removeAllObjects];
-    [_unVisibelCellKeys removeAllObjects];
+//    [_unVisibelCellKeys removeAllObjects];
     _visibleRange = NSMakeRange(0, 0);
     _selectedIndex = -1;
     
@@ -253,13 +255,12 @@ NS_INLINE NSRange TYIntersectionRange(NSRange range1, NSRange range2,NSRange& ra
 
 - (void)scrollToIndex:(NSInteger)index atPosition:(TYHorizenTableViewPosition)position animated:(BOOL)animated
 {
-    if ( position == TYHorizenTableViewPositionNone
-        || index < 0 || index >= _vecCellPositions.size()) {
+    if ((index < 0 || index >= _vecCellPositions.size()) && _cellWidth <= 0) {
         return;
     }
-    TYPosition cellVisiblePositon = _vecCellPositions[index];
-    CGFloat viewWidth = CGRectGetWidth(self.frame);
+    TYPosition cellVisiblePositon = [self TYPositonWithIndex:index];
     
+    CGFloat viewWidth = CGRectGetWidth(self.frame);
     switch (position) {
         
         case TYHorizenTableViewPositionNone:
@@ -319,11 +320,40 @@ NS_INLINE NSRange TYIntersectionRange(NSRange range1, NSRange range2,NSRange& ra
 
 #pragma mark - private method
 
+- (TYPosition)TYPositonWithIndex:(NSInteger)index
+{
+    if (_cellWidth > 0) {
+        return {index * (_cellWidth+_cellSpacing)+_edgeInsets.left,_cellWidth};
+    }
+    return _vecCellPositions[index];
+}
+
 // 计算所有cell的位置
 - (void)calculateCellPositions
 {
+    if (_cellWidth > 0) {
+        [self caculateEqualCellPositons];
+    }else {
+        [self calculateUnequalCellPositions];
+    }
+}
+
+- (void)caculateEqualCellPositons
+{
     // 获得item的数目
     NSInteger numberOfItems = [_dataSource horizenTableViewOnNumberOfItems:self];
+    _cellCount = numberOfItems;
+    CGFloat contentWidth  = _edgeInsets.left + numberOfItems * (_cellWidth + _cellSpacing) - _cellSpacing +_edgeInsets.right;
+    CGFloat contentHeight = CGRectGetHeight(self.frame);
+    
+    self.contentSize = CGSizeMake(contentWidth, contentHeight);
+}
+
+- (void)calculateUnequalCellPositions
+{
+    // 获得item的数目
+    NSInteger numberOfItems = [_dataSource horizenTableViewOnNumberOfItems:self];
+    _cellCount = numberOfItems;
     CGFloat contentWidth  = _edgeInsets.left;
     CGFloat contentHeight = CGRectGetHeight(self.frame);
     
@@ -358,95 +388,51 @@ NS_INLINE NSRange TYIntersectionRange(NSRange range1, NSRange range2,NSRange& ra
     }
     
     // 获取可见range
-    NSRange visibleCellRange = [self getVisibleCellRangeWithVisibleOrignX:offsetLeftX visibleEndX:offsetRightX];
+    NSRange visibleCellRange = [self getVisibleCellRangWithVisibleOrignX:offsetLeftX visibleEndX:offsetRightX];
     
     // 优化性能
     if (NSEqualRanges(_visibleRange, visibleCellRange)) {
         return;
     }
-
+    
     NSRange preVisibleCellRange = _visibleRange;
     _visibleRange = visibleCellRange;
     
-    _leftPostion = _vecCellPositions[visibleCellRange.location];
-    _rightPositon = _vecCellPositions[NSMaxRange(visibleCellRange)-1];
+    _leftPostion = [self TYPositonWithIndex:visibleCellRange.location];
+    _rightPositon = [self TYPositonWithIndex:NSMaxRange(visibleCellRange)-1];
     
-    //[self dealWithCellWithVisibleRange:visibleCellRange];
     [self dealWithCellWithVisibleRange:visibleCellRange preVisibleRange:preVisibleCellRange];
 
-//    NSMutableSet *set = _reuseCellsDic[_reuseIdentifys.allKeys.firstObject];
-//    NSLog(@"visible cell num:%d",_visibleCellsDic.count);
-//    NSLog(@"reuse cell num:%d",set.count);
-}
-
-- (void)dealWithCellWithVisibleRange:(NSRange)visibleCellRange preVisibleRange:(NSRange)preVisibleRange
-{
-     NSRange willDisapperRange, willDisplayRange;
-    
-    TYIntersectionRange(preVisibleRange, visibleCellRange, willDisapperRange, willDisplayRange);
-    
-    for (NSInteger index = willDisapperRange.location; index < NSMaxRange(willDisapperRange); ++index) {
-        TYHorizenTableViewCell *cell = [_visibleCellsDic objectForKey:@(index)];
-        if (cell) {
-            [self enqueueUnuseCell:cell];
-            
-            [_visibleCellsDic removeObjectForKey:@(index)];
-        }
-    }
-    
-    for (NSInteger index = willDisplayRange.location; index < NSMaxRange(willDisplayRange); ++index) {
-        TYHorizenTableViewCell *cell = [_visibleCellsDic objectForKey:@(index)];
-        if (!cell) {
-            cell = [_dataSource horizenTableView:self cellForItemAtIndex:index];
-            // 添加cell到index位置
-            [self addCell:cell atIndex:index];
-        }
-        
-        if (_selectedIndex == index) {
-            [cell setSelected:YES animated:NO];
-        }else if (cell.selected){
-            [cell setSelected:NO animated:NO];
-        }
-    }
-    
-}
-
-- (void)dealWithCellWithVisibleRange:(NSRange)visibleCellRange
-{
-    [_unVisibelCellKeys addObjectsFromArray:[_visibleCellsDic allKeys]];
-    for (NSInteger index = visibleCellRange.location; index < NSMaxRange(visibleCellRange); ++index) {
-        
-        TYHorizenTableViewCell *cell = [_visibleCellsDic objectForKey:@(index)];
-        if (!cell) {
-            cell = [_dataSource horizenTableView:self cellForItemAtIndex:index];
-            
-            // 添加cell到index位置
-            [self addCell:cell atIndex:index];
-        }else {
-            [_unVisibelCellKeys removeObject:@(index)];
-        }
-        
-        if (_selectedIndex == index) {
-            [cell setSelected:YES animated:NO];
-        }else if (cell.selected){
-            [cell setSelected:NO animated:NO];
-        }
-    }
-    
-    for (NSNumber *index in _unVisibelCellKeys) {
-        TYHorizenTableViewCell *cell = [_visibleCellsDic objectForKey:index];
-        if (cell) {
-            [self enqueueUnuseCell:cell];
-        }
-    }
-    
-    [_visibleCellsDic removeObjectsForKeys:_unVisibelCellKeys];
-    [_unVisibelCellKeys removeAllObjects];
+    //[self printVisibleAndReuseCellCount];
 }
 
 // 获取可见cells的rang
-- (NSRange)getVisibleCellRangeWithVisibleOrignX:(CGFloat)visibleOrignX visibleEndX:(CGFloat)visibleEndX
+- (NSRange)getVisibleCellRangWithVisibleOrignX:(CGFloat)visibleOrignX visibleEndX:(CGFloat)visibleEndX
 {
+    if (_cellWidth > 0) {
+        return [self getVisibleEqualCellRangWithVisibleOrignX:visibleOrignX visibleEndX:visibleEndX];
+    }
+    return [self getVisibleUnequalCellRangeWithVisibleOrignX:visibleOrignX visibleEndX:visibleEndX];
+}
+
+- (NSRange)getVisibleEqualCellRangWithVisibleOrignX:(CGFloat)visibleOrignX visibleEndX:(CGFloat)visibleEndX
+{
+    NSInteger startIndex = (visibleOrignX - _edgeInsets.left + _cellSpacing)/(_cellWidth + _cellSpacing);
+        
+    NSInteger endIndex = (visibleEndX - _edgeInsets.left)/(_cellWidth + _cellSpacing)+1;
+    _preOffsetX = visibleOrignX;
+    if (startIndex < 0) {
+        startIndex = 0;
+    }
+    if (endIndex > _cellCount) {
+        endIndex = _cellCount;
+    }
+    return NSMakeRange(startIndex, endIndex - startIndex);
+}
+
+- (NSRange)getVisibleUnequalCellRangeWithVisibleOrignX:(CGFloat)visibleOrignX visibleEndX:(CGFloat)visibleEndX
+{
+    
     NSInteger index = 0;
     if (visibleOrignX > _preOffsetX) {
         index = _visibleRange.location;
@@ -483,14 +469,79 @@ NS_INLINE NSRange TYIntersectionRange(NSRange range1, NSRange range2,NSRange& ra
     return NSMakeRange(startIndex, endIndex - startIndex);
 }
 
+
+- (void)dealWithCellWithVisibleRange:(NSRange)visibleCellRange preVisibleRange:(NSRange)preVisibleRange
+{
+     NSRange willDisapperRange, willDisplayRange;
+    
+    TYIntersectionRange(preVisibleRange, visibleCellRange, willDisapperRange, willDisplayRange);
+    
+    for (NSInteger index = willDisapperRange.location; index < NSMaxRange(willDisapperRange); ++index) {
+        TYHorizenTableViewCell *cell = [_visibleCellsDic objectForKey:@(index)];
+        if (cell) {
+            [self enqueueUnuseCell:cell];
+            
+            [_visibleCellsDic removeObjectForKey:@(index)];
+        }
+    }
+    
+    for (NSInteger index = willDisplayRange.location; index < NSMaxRange(willDisplayRange); ++index) {
+        TYHorizenTableViewCell *cell = [_visibleCellsDic objectForKey:@(index)];
+        if (!cell) {
+            cell = [_dataSource horizenTableView:self cellForItemAtIndex:index];
+            // 添加cell到index位置
+            [self addCell:cell atIndex:index];
+        }
+        
+        if (_selectedIndex == index) {
+            [cell setSelected:YES animated:NO];
+        }else if (cell.selected){
+            [cell setSelected:NO animated:NO];
+        }
+    }
+    
+}
+
+//- (void)dealWithCellWithVisibleRange:(NSRange)visibleCellRange
+//{
+//    [_unVisibelCellKeys addObjectsFromArray:[_visibleCellsDic allKeys]];
+//    for (NSInteger index = visibleCellRange.location; index < NSMaxRange(visibleCellRange); ++index) {
+//        
+//        TYHorizenTableViewCell *cell = [_visibleCellsDic objectForKey:@(index)];
+//        if (!cell) {
+//            cell = [_dataSource horizenTableView:self cellForItemAtIndex:index];
+//            
+//            // 添加cell到index位置
+//            [self addCell:cell atIndex:index];
+//        }else {
+//            [_unVisibelCellKeys removeObject:@(index)];
+//        }
+//        
+//        if (_selectedIndex == index) {
+//            [cell setSelected:YES animated:NO];
+//        }else if (cell.selected){
+//            [cell setSelected:NO animated:NO];
+//        }
+//    }
+//    
+//    for (NSNumber *index in _unVisibelCellKeys) {
+//        TYHorizenTableViewCell *cell = [_visibleCellsDic objectForKey:index];
+//        if (cell) {
+//            [self enqueueUnuseCell:cell];
+//        }
+//    }
+//    
+//    [_visibleCellsDic removeObjectsForKeys:_unVisibelCellKeys];
+//    [_unVisibelCellKeys removeAllObjects];
+//}
+
 // 添加cell
 - (void)addCell:(TYHorizenTableViewCell *)cell atIndex:(NSInteger)index
 {
     cell.index = index;
-    const TYPosition& cellPosition = _vecCellPositions[index];
-    CGRect cellFrame = CGRectMake(cellPosition.originX, _edgeInsets.top, cellPosition.width, CGRectGetHeight(self.frame)-_edgeInsets.top-_edgeInsets.bottom);
+    TYPosition cellPosition = [self TYPositonWithIndex:index];
+    [cell setFrame:CGRectMake(cellPosition.originX, _edgeInsets.top, cellPosition.width, CGRectGetHeight(self.frame)-_edgeInsets.top-_edgeInsets.bottom)];
     
-    [cell setFrame:cellFrame];
     if (cell.superview == nil) {
         [self addSubview:cell];
     }else if (cell.superview != self){
@@ -499,7 +550,6 @@ NS_INLINE NSRange TYIntersectionRange(NSRange range1, NSRange range2,NSRange& ra
     }else if (cell.hidden) {
         cell.hidden = NO;
     }
-    
     _visibleCellsDic[@(index)] = cell;
     
     if (_delegateFlags.willDisplayCell) {
@@ -573,11 +623,16 @@ NS_INLINE NSRange TYIntersectionRange(NSRange range1, NSRange range2,NSRange& ra
     [self updateVisibleCells];
 }
 
+- (void)printVisibleAndReuseCellCount
+{
+    NSMutableSet *set = _reuseCellsDic[_reuseIdentifys.allKeys.firstObject];
+    NSLog(@"visible cell num:%d",(int)_visibleCellsDic.count);
+    NSLog(@"reuse cell num:%d",(int)set.count);
+}
+
 - (void)dealloc
 {
     _vecCellPositions.clear();
-    [_visibleCellsDic removeAllObjects];
-    [_reuseCellsDic removeAllObjects];
 }
 
 @end
