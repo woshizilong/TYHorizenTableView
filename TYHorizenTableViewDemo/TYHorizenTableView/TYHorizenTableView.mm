@@ -75,8 +75,8 @@ NS_INLINE NSRange TYIntersectionRange(NSRange range1, NSRange range2,NSRange& ra
     NSRange                 _visibleRange;      // 当前可见cell范围
     CGFloat                 _preOffsetX;        // 前一个offset
     
-    TYPosition              _leftPostion;
-    TYPosition              _rightPositon;
+    TYPosition              _leftPostion;       // 左边第一个可见位置
+    TYPosition              _rightPositon;      // 右边...
     
     NSInteger               _cellCount;
     
@@ -94,7 +94,6 @@ NS_INLINE NSRange TYIntersectionRange(NSRange range1, NSRange range2,NSRange& ra
 @property (nonatomic, strong) NSMutableDictionary   *reuseIdentifys;    // 注册的class或者nib
 @property (nonatomic, assign) NSInteger             selectedIndex;      // 选中的cell
 @property (nonatomic, strong) UITapGestureRecognizer *singleTap;        //点击手势
-//@property (nonatomic, strong) NSMutableArray *unVisibelCellKeys;
 
 @end
 
@@ -123,7 +122,6 @@ NS_INLINE NSRange TYIntersectionRange(NSRange range1, NSRange range2,NSRange& ra
     self.backgroundColor = [UIColor whiteColor];
     _visibleCellsDic = [NSMutableDictionary dictionary];
     _reuseCellsDic = [NSMutableDictionary dictionary];
-//    _unVisibelCellKeys = [NSMutableArray array];
     _vecCellPositions = std::vector<TYPosition>();
     _maxReuseCount = 2;
     _selectedIndex = -1;
@@ -141,7 +139,6 @@ NS_INLINE NSRange TYIntersectionRange(NSRange range1, NSRange range2,NSRange& ra
     }
     
     [_reuseCellsDic removeAllObjects];
-//    [_unVisibelCellKeys removeAllObjects];
     _visibleRange = NSMakeRange(0, 0);
     _selectedIndex = -1;
     
@@ -501,39 +498,6 @@ NS_INLINE NSRange TYIntersectionRange(NSRange range1, NSRange range2,NSRange& ra
     }
     
 }
-
-//- (void)dealWithCellWithVisibleRange:(NSRange)visibleCellRange
-//{
-//    [_unVisibelCellKeys addObjectsFromArray:[_visibleCellsDic allKeys]];
-//    for (NSInteger index = visibleCellRange.location; index < NSMaxRange(visibleCellRange); ++index) {
-//        
-//        TYHorizenTableViewCell *cell = [_visibleCellsDic objectForKey:@(index)];
-//        if (!cell) {
-//            cell = [_dataSource horizenTableView:self cellForItemAtIndex:index];
-//            
-//            // 添加cell到index位置
-//            [self addCell:cell atIndex:index];
-//        }else {
-//            [_unVisibelCellKeys removeObject:@(index)];
-//        }
-//        
-//        if (_selectedIndex == index) {
-//            [cell setSelected:YES animated:NO];
-//        }else if (cell.selected){
-//            [cell setSelected:NO animated:NO];
-//        }
-//    }
-//    
-//    for (NSNumber *index in _unVisibelCellKeys) {
-//        TYHorizenTableViewCell *cell = [_visibleCellsDic objectForKey:index];
-//        if (cell) {
-//            [self enqueueUnuseCell:cell];
-//        }
-//    }
-//    
-//    [_visibleCellsDic removeObjectsForKeys:_unVisibelCellKeys];
-//    [_unVisibelCellKeys removeAllObjects];
-//}
 
 // 添加cell
 - (void)addCell:(TYHorizenTableViewCell *)cell atIndex:(NSInteger)index
