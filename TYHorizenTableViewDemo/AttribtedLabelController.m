@@ -87,6 +87,7 @@ static NSString *reuseAttribtedLabelCellId = @"AttributedLableCell";
     //horizonTableView.edgeInsets
     horizonTableView.delegate = self;
     horizonTableView.dataSource = self;
+    horizonTableView.cellWidth = CGRectGetWidth(self.view.frame);
     horizonTableView.pagingEnabled = YES;
     
     [self.view addSubview:horizonTableView];

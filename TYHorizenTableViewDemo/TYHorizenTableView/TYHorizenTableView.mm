@@ -2,7 +2,7 @@
 //  TYHorizenTableView.m
 //  TYHorizenTableViewDemo
 //
-//  Created by SunYong on 15/5/8.
+//  Created by tanyang on 15/5/8.
 //  Copyright (c) 2015年 tanyang. All rights reserved.
 //
 
@@ -25,7 +25,7 @@ NS_INLINE BOOL TYPositionInPointRange(const TYPosition& position,CGFloat originX
 
 NS_INLINE BOOL TYPointInPosition(CGFloat point,const TYPosition& position)
 {
-    if (point >= position.originX && point <= position.originX + position.width) {
+    if (point >= position.originX && point < position.originX + position.width) {
         return YES;
     }
     return NO;
@@ -202,6 +202,13 @@ NS_INLINE NSRange TYIntersectionRange(NSRange range1, NSRange range2,NSRange& ra
     
     // 添加cell到index位置
     [self addCell:cell atIndex:index];
+}
+
+- (void)reloadItemAtIndexSet:(NSIndexSet *)indexSet
+{
+    [indexSet enumerateIndexesUsingBlock:^(NSUInteger idx, BOOL *stop) {
+        [self reloadItemAtIndex:idx];
+    }];
 }
 
 - (TYHorizenTableViewCell *)dequeueReusableCellWithIdentifier:(NSString *)identifier
@@ -416,7 +423,7 @@ NS_INLINE NSRange TYIntersectionRange(NSRange range1, NSRange range2,NSRange& ra
 {
     NSInteger startIndex = (visibleOrignX - _edgeInsets.left + _cellSpacing)/(_cellWidth + _cellSpacing);
         
-    NSInteger endIndex = (visibleEndX - _edgeInsets.left)/(_cellWidth + _cellSpacing)+1;
+    NSInteger endIndex = ceil((visibleEndX - _edgeInsets.left)/(_cellWidth + _cellSpacing));
     _preOffsetX = visibleOrignX;
     if (startIndex < 0) {
         startIndex = 0;
@@ -521,7 +528,7 @@ NS_INLINE NSRange TYIntersectionRange(NSRange range1, NSRange range2,NSRange& ra
     }
 }
 
-// 缓存cells
+// 回收缓存cells
 - (void)enqueueUnuseCell:(TYHorizenTableViewCell*)cell
 {
     if (_delegateFlags.willDisplayCell) {
@@ -584,7 +591,7 @@ NS_INLINE NSRange TYIntersectionRange(NSRange range1, NSRange range2,NSRange& ra
 
 - (void)layoutSubviews
 {
-    //[super layoutSubviews];
+    [super layoutSubviews];
     [self updateVisibleCells];
 }
 

@@ -2,7 +2,7 @@
 //  TYHorizenTableViewCell.h
 //  TYHorizenTableViewDemo
 //
-//  Created by SunYong on 15/5/8.
+//  Created by tanyang on 15/5/8.
 //  Copyright (c) 2015年 tanyang. All rights reserved.
 //
 
@@ -21,9 +21,7 @@
 
 - (void)setSelected:(BOOL)selected animated:(BOOL)animated;
 
-// 在这个函数中reset Cell 释放不用内存
+// cell放入重用池 可以重置Cell 释放不用内存
 - (void)didDequeUnuseCell;
-
-// 最好在layoutSubviews 中布局
 
 @end

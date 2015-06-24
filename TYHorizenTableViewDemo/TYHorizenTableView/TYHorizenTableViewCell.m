@@ -2,7 +2,7 @@
 //  TYHorizenTableViewCell.m
 //  TYHorizenTableViewDemo
 //
-//  Created by SunYong on 15/5/8.
+//  Created by tanyang on 15/5/8.
 //  Copyright (c) 2015年 tanyang. All rights reserved.
 //
 

@@ -2,7 +2,7 @@
 //  TYHorizenTableView.h
 //  TYHorizenTableViewDemo
 //
-//  Created by SunYong on 15/5/8.
+//  Created by tanyang on 15/5/8.
 //  Copyright (c) 2015年 tanyang. All rights reserved.
 //  Horizen Scroll TableView
 
@@ -21,19 +21,13 @@ typedef enum {
 @protocol TYHorizenTableViewDataSource <NSObject>
 @required
 
-/**
- *  水平滚动tableview 一共有几个元素item;
- */
+// 水平滚动tableview 一共有几个元素item;
 - (NSInteger)horizenTableViewOnNumberOfItems:(TYHorizenTableView *)horizenTableView;
 
-/**
- *  获取对应下标Index的cell
- */
+// 获取对应下标Index的cell
 - (TYHorizenTableViewCell *)horizenTableView:(TYHorizenTableView *)horizenTableView cellForItemAtIndex:(NSInteger)index;
 
-/**
- *  获取可变宽度
- */
+// 获取可变宽度
 - (CGFloat)horizenTableView:(TYHorizenTableView *)horizenTableView widthForItemAtIndex:(NSInteger)index;
 
 @end
@@ -56,6 +50,7 @@ typedef enum {
 @end
 
 @interface TYHorizenTableView : UIScrollView
+
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored"-Wobjc-property-synthesis"
 @property (nonatomic, assign) id<TYHorizenTableViewDataSource>  dataSource;
@@ -87,7 +82,6 @@ typedef enum {
  */
 - (void)scrollToIndex:(NSInteger)index atPosition:(TYHorizenTableViewPosition)position animated:(BOOL)animated;
 
-// Selects and deselects cell. These methods will not call the delegate methods
 /**
  *  选中指定index cell 默认TYHorizenTableViewPositionNone不滚动
  */
@@ -117,6 +111,8 @@ typedef enum {
  *  重新读取指定index数据
  */
 - (void)reloadItemAtIndex:(NSInteger)index;
+
+- (void)reloadItemAtIndexSet:(NSIndexSet *)indexSet;
 
 @end
 
