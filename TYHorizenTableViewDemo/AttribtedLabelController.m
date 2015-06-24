@@ -83,11 +83,11 @@ static NSString *reuseAttribtedLabelCellId = @"AttributedLableCell";
 - (void)addHorizenTableView
 {
     TYHorizenTableView *horizonTableView = [[TYHorizenTableView alloc]initWithFrame:self.view.bounds];
-    //horizonTableView.cellSpacing = 8;
+    //horizonTableView.itemSpacing = 8;
     //horizonTableView.edgeInsets
     horizonTableView.delegate = self;
     horizonTableView.dataSource = self;
-    horizonTableView.cellWidth = CGRectGetWidth(self.view.frame);
+    horizonTableView.itemWidth = CGRectGetWidth(self.view.frame);
     horizonTableView.pagingEnabled = YES;
     
     [self.view addSubview:horizonTableView];

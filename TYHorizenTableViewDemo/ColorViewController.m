@@ -41,10 +41,10 @@ static NSString *reuseColorViewCellId = @"ColorViewCell";
 - (void)addHorizenTableView
 {
     TYHorizenTableView *horizonTableView = [[TYHorizenTableView alloc]initWithFrame:CGRectMake(0, 0, CGRectGetWidth(self.view.frame), 200)];
-    //horizonTableView.cellSpacing = 16;
+    //horizonTableView.itemSpacing = 16;
     horizonTableView.delegate = self;
     horizonTableView.dataSource = self;
-    horizonTableView.cellWidth = 140;
+    horizonTableView.itemWidth = 140;
     
     [self.view addSubview:horizonTableView];
     _horizonTableView = horizonTableView;

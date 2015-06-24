@@ -66,8 +66,8 @@ NS_INLINE NSRange TYIntersectionRange(NSRange range1, NSRange range2,NSRange& ra
 }
 
 @interface TYHorizenTableViewCell ()
-@property (nonatomic, assign, readwrite) NSInteger   index;
-@property (nonatomic, copy, readwrite)   NSString   *identifier;
+@property (nonatomic, assign, readwrite) NSInteger index;
+@property (nonatomic, copy, readwrite)   NSString  *identifier;
 @end
 
 @interface TYHorizenTableView ()<UIScrollViewDelegate>{
@@ -259,7 +259,7 @@ NS_INLINE NSRange TYIntersectionRange(NSRange range1, NSRange range2,NSRange& ra
 
 - (void)scrollToIndex:(NSInteger)index atPosition:(TYHorizenTableViewPosition)position animated:(BOOL)animated
 {
-    if ((index < 0 || index >= _vecCellPositions.size()) && _cellWidth <= 0) {
+    if ((index < 0 || index >= _vecCellPositions.size()) && _itemWidth <= 0) {
         return;
     }
     TYPosition cellVisiblePositon = [self TYPositonWithIndex:index];
@@ -326,8 +326,8 @@ NS_INLINE NSRange TYIntersectionRange(NSRange range1, NSRange range2,NSRange& ra
 
 - (TYPosition)TYPositonWithIndex:(NSInteger)index
 {
-    if (_cellWidth > 0) {
-        return {index * (_cellWidth+_cellSpacing)+_edgeInsets.left,_cellWidth};
+    if (_itemWidth > 0) {
+        return {index * (_itemWidth+_itemSpacing)+_edgeInsets.left,_itemWidth};
     }
     return _vecCellPositions[index];
 }
@@ -335,7 +335,7 @@ NS_INLINE NSRange TYIntersectionRange(NSRange range1, NSRange range2,NSRange& ra
 // 计算所有cell的位置
 - (void)calculateCellPositions
 {
-    if (_cellWidth > 0) {
+    if (_itemWidth > 0) {
         [self caculateEqualCellPositons];
     }else {
         [self calculateUnequalCellPositions];
@@ -347,7 +347,7 @@ NS_INLINE NSRange TYIntersectionRange(NSRange range1, NSRange range2,NSRange& ra
     // 获得item的数目
     NSInteger numberOfItems = [_dataSource horizenTableViewOnNumberOfItems:self];
     _cellCount = numberOfItems;
-    CGFloat contentWidth  = _edgeInsets.left + numberOfItems * (_cellWidth + _cellSpacing) - _cellSpacing +_edgeInsets.right;
+    CGFloat contentWidth  = _edgeInsets.left + numberOfItems * (_itemWidth + _itemSpacing) - _itemSpacing +_edgeInsets.right;
     CGFloat contentHeight = CGRectGetHeight(self.frame);
     
     self.contentSize = CGSizeMake(contentWidth, contentHeight);
@@ -367,12 +367,12 @@ NS_INLINE NSRange TYIntersectionRange(NSRange range1, NSRange range2,NSRange& ra
     
     // 计算所有cell的frame
     for (int index = 0; index < numberOfItems; ++index) {
-        CGFloat cellWidth = [_dataSource horizenTableView:self widthForItemAtIndex:index];
-        TYPosition cellPosition = {contentWidth,cellWidth};
+        CGFloat itemWidth = [_dataSource horizenTableView:self widthForItemAtIndex:index];
+        TYPosition cellPosition = {contentWidth,itemWidth};
         _vecCellPositions.push_back(cellPosition);
         
-        NSInteger cellSpace = (index == numberOfItems-1) ? _edgeInsets.right : _cellSpacing;
-        contentWidth += cellWidth + cellSpace;
+        NSInteger cellSpace = (index == numberOfItems-1) ? _edgeInsets.right : _itemSpacing;
+        contentWidth += itemWidth + cellSpace;
     }
     
     self.contentSize = CGSizeMake(contentWidth, contentHeight);
@@ -413,7 +413,7 @@ NS_INLINE NSRange TYIntersectionRange(NSRange range1, NSRange range2,NSRange& ra
 // 获取可见cells的range
 - (NSRange)getVisibleCellRangWithVisibleOrignX:(CGFloat)visibleOrignX visibleEndX:(CGFloat)visibleEndX
 {
-    if (_cellWidth > 0) {
+    if (_itemWidth > 0) {
         return [self getVisibleEqualCellRangWithVisibleOrignX:visibleOrignX visibleEndX:visibleEndX];
     }
     return [self getVisibleUnequalCellRangeWithVisibleOrignX:visibleOrignX visibleEndX:visibleEndX];
@@ -421,9 +421,9 @@ NS_INLINE NSRange TYIntersectionRange(NSRange range1, NSRange range2,NSRange& ra
 
 - (NSRange)getVisibleEqualCellRangWithVisibleOrignX:(CGFloat)visibleOrignX visibleEndX:(CGFloat)visibleEndX
 {
-    NSInteger startIndex = (visibleOrignX - _edgeInsets.left + _cellSpacing)/(_cellWidth + _cellSpacing);
+    NSInteger startIndex = (visibleOrignX - _edgeInsets.left + _itemSpacing)/(_itemWidth + _itemSpacing);
         
-    NSInteger endIndex = ceil((visibleEndX - _edgeInsets.left)/(_cellWidth + _cellSpacing));
+    NSInteger endIndex = ceil((visibleEndX - _edgeInsets.left)/(_itemWidth + _itemSpacing));
     _preOffsetX = visibleOrignX;
     if (startIndex < 0) {
         startIndex = 0;
@@ -480,6 +480,7 @@ NS_INLINE NSRange TYIntersectionRange(NSRange range1, NSRange range2,NSRange& ra
     
     TYIntersectionRange(preVisibleRange, visibleCellRange, willDisapperRange, willDisplayRange);
     
+    // 先回收
     for (NSInteger index = willDisapperRange.location; index < NSMaxRange(willDisapperRange); ++index) {
         TYHorizenTableViewCell *cell = [_visibleCellsDic objectForKey:@(index)];
         if (cell) {
@@ -489,6 +490,7 @@ NS_INLINE NSRange TYIntersectionRange(NSRange range1, NSRange range2,NSRange& ra
         }
     }
     
+    // 后重用
     for (NSInteger index = willDisplayRange.location; index < NSMaxRange(willDisplayRange); ++index) {
         TYHorizenTableViewCell *cell = [_visibleCellsDic objectForKey:@(index)];
         if (!cell) {
@@ -503,7 +505,6 @@ NS_INLINE NSRange TYIntersectionRange(NSRange range1, NSRange range2,NSRange& ra
             [cell setSelected:NO animated:NO];
         }
     }
-    
 }
 
 // 添加cell

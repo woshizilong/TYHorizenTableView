@@ -50,7 +50,7 @@ static NSString *reuseImageBriefCellId = @"ImageBriefCell";
 - (void)addHorizenTableView
 {
     TYHorizenTableView *horizonTableView = [[TYHorizenTableView alloc]initWithFrame:CGRectMake(0, 0, CGRectGetWidth(self.view.frame), 280)];
-    horizonTableView.cellSpacing = 16;
+    horizonTableView.itemSpacing = 16;
     horizonTableView.edgeInsets = UIEdgeInsetsMake(0, 8, 0, 8);
     horizonTableView.delegate = self;
     horizonTableView.dataSource = self;
