@@ -31,7 +31,7 @@ NS_INLINE BOOL TYPointInPosition(CGFloat point,const TYPosition& position)
     return NO;
 }
 
-NS_INLINE NSRange TYIntersectionRange(NSRange range1, NSRange range2,NSRange& range1Differ,NSRange& range2Differ)
+NSRange TYIntersectionRange(NSRange range1, NSRange range2,NSRange& range1Differ,NSRange& range2Differ)
 {
     // 计算range
     NSRange interRange = NSIntersectionRange(range1, range2);
@@ -226,6 +226,7 @@ NS_INLINE NSRange TYIntersectionRange(NSRange range1, NSRange range2,NSRange& ra
         set = [NSMutableSet setWithCapacity:_maxReuseCount];
         _reuseCellsDic[identifier] = set;
     }
+    
     id registerId = nil;
     if (_reuseIdentifys && (registerId = [_reuseIdentifys objectForKey:identifier])) {
         if ([registerId isKindOfClass:[UINib class]]) {
@@ -574,7 +575,7 @@ NS_INLINE NSRange TYIntersectionRange(NSRange range1, NSRange range2,NSRange& ra
 {
     if (_delegateFlags.willSelectCellAtIndex) {
         index = [self.delegate horizenTableView:self willSelectCellAtIndex:index];
-        NSLog(@"change select cell index :%ld",(long)index);
+        //NSLog(@"change select cell index :%ld",(long)index);
     }
     
     if (index != _selectedIndex) {
