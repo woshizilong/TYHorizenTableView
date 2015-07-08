@@ -6,4 +6,40 @@ TYHorizenTableView   用scrollView实现 可重用的水平滚动tableView 极�
 ![image](https://raw.githubusercontent.com/12207480/TYHorizenTableView/master/screenshot/horizenTableView.gif)
 
 
+## Delegate
 
+```objc
+@protocol TYHorizenTableViewDataSource <NSObject>
+@required
+
+// Total number of items
+- (NSInteger)horizenTableViewOnNumberOfItems:(TYHorizenTableView *)horizenTableView;
+
+//Implementers should *always* try to reuse cells by setting each cell's reuseIdentifier and querying for available reusable cells with dequeueReusableCellWithIdentifier
+// get cell for display
+- (TYHorizenTableViewCell *)horizenTableView:(TYHorizenTableView *)horizenTableView cellForItemAtIndex:(NSInteger)index;
+
+@optional
+
+// Variable width support
+- (CGFloat)horizenTableView:(TYHorizenTableView *)horizenTableView widthForItemAtIndex:(NSInteger)index;
+
+@end
+
+@protocol TYHorizenTableViewDelegate <UIScrollViewDelegate>
+@optional
+
+// Called before the user changes the selection. Return a new index, or 0, to change the proposed selection.
+- (NSInteger)horizenTableView:(TYHorizenTableView *)horizenTableView willSelectCellAtIndex:(NSInteger)index;
+
+// Called after the user changes the selection.点击cell
+- (void)horizenTableView:(TYHorizenTableView *)horizenTableView didSelectCellAtIndex:(NSInteger)index;
+- (void)horizenTableView:(TYHorizenTableView *)horizenTableView didDeselectCellAtIndex:(NSInteger)index;
+
+// cell will Display
+- (void)horizenTableView:(TYHorizenTableView *)horizenTableView willDisplayCell:(TYHorizenTableViewCell *)cell atIndex:(NSInteger)index;
+// cell did Disappear
+- (void)horizenTableView:(TYHorizenTableView *)horizenTableView didEndDisplayingCell:(TYHorizenTableViewCell *)cell atIndex:(NSInteger)index;
+
+@end
+```
