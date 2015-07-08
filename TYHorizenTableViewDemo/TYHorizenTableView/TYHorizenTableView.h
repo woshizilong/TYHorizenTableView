@@ -28,7 +28,9 @@ typedef enum {
 // get cell for display
 - (TYHorizenTableViewCell *)horizenTableView:(TYHorizenTableView *)horizenTableView cellForItemAtIndex:(NSInteger)index;
 
-// Variable width support
+@optional
+
+// Variable width support ,if width is equal ,you can use itemWidth
 - (CGFloat)horizenTableView:(TYHorizenTableView *)horizenTableView widthForItemAtIndex:(NSInteger)index;
 
 @end
