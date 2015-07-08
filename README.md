@@ -21,7 +21,7 @@ TYHorizenTableView   用scrollView实现 可重用的水平滚动tableView 极�
 
 @optional
 
-// Variable width support
+// Variable width support. If width is equal ,you can use itemWidth
 - (CGFloat)horizenTableView:(TYHorizenTableView *)horizenTableView widthForItemAtIndex:(NSInteger)index;
 
 @end
