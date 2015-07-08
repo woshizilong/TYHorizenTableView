@@ -6,6 +6,19 @@ TYHorizenTableView   用scrollView实现 可重用的水平滚动tableView 极�
 ![image](https://raw.githubusercontent.com/12207480/TYHorizenTableView/master/screenshot/horizenTableView.gif)
 
 
+## Usage
+
+```objc
+    TYHorizenTableView *horizonTableView = [[TYHorizenTableView alloc]initWithFrame:CGRectMake(0, 0,CGRectGetWidth(self.view.frame), 200)];
+    //horizonTableView.itemSpacing = 16;
+    //horizonTableView.itemWidth = 140; // 宽度相等时 会相应优化
+    horizonTableView.delegate = self;
+    horizonTableView.dataSource = self;
+    
+    [self.view addSubview:horizonTableView];
+    _horizonTableView = horizonTableView;
+```
+
 ## Delegate
 
 ```objc
