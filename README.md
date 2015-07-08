@@ -1,7 +1,7 @@
 # TYHorizenTableView
 TYHorizenTableView   用scrollView实现 可重用的水平滚动tableView 极致性能优化，原生体验。<br>
 
-你可以像使用tableview一样使用它，代码简洁以及相应的注释，你也可以学到怎么样实现可重用的tableview，虽然这个是个水平滚动。
+你可以像使用tableview一样使用它，代码简洁以及相应的注释，你也可以学到怎样实现极致优化，流畅滚动可重用的tableview，虽然这个是个水平滚动。
 
 ## ScreenShot
 
