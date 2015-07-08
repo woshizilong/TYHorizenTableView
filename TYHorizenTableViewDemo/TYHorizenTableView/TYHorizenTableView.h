@@ -59,7 +59,7 @@ typedef enum {
 @property (nonatomic, assign) id<TYHorizenTableViewDataSource>  dataSource;
 @property (nonatomic, assign) id<TYHorizenTableViewDelegate>    delegate;
 #pragma clang diagnostic pop
-@property (nonatomic, assign) CGFloat           itemWidth;    // item的宽度 设置会优化
+@property (nonatomic, assign) CGFloat           itemWidth;    // item的宽度 会相应优化
 @property (nonatomic, assign) CGFloat           itemSpacing;  // item之间间隔
 @property (nonatomic, assign) UIEdgeInsets      edgeInsets;   // 四边间距
 @property (nonatomic, assign) NSInteger         maxReuseCount;// 最大可重用cell数 默认2
