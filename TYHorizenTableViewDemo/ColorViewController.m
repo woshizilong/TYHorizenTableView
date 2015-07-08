@@ -9,14 +9,14 @@
 #import "ColorViewController.h"
 #import "TYHorizenTableView.h"
 #import "ColorViewCell.h"
-#import "ColorXibCell.h"
+//#import "ColorXibCell.h"
 
 @interface ColorViewController ()<TYHorizenTableViewDataSource,TYHorizenTableViewDelegate,UITableViewDataSource,UITableViewDelegate>
 @property (nonatomic, weak) TYHorizenTableView  *horizonTableView;
 @property (nonatomic, weak) UITableView         *tableView;
 @end
 
-static NSString *reuseColorXibCellId = @"ColorXibCell";
+//static NSString *reuseColorXibCellId = @"ColorXibCell";
 static NSString *reuseColorViewCellId = @"ColorViewCell";
 @implementation ColorViewController
 
@@ -38,13 +38,15 @@ static NSString *reuseColorViewCellId = @"ColorViewCell";
     [_horizonTableView reloadData];
 }
 
+#pragma mark - addView
+
 - (void)addHorizenTableView
 {
     TYHorizenTableView *horizonTableView = [[TYHorizenTableView alloc]initWithFrame:CGRectMake(0, 0, CGRectGetWidth(self.view.frame), 200)];
     //horizonTableView.itemSpacing = 16;
+    //horizonTableView.itemWidth = 140;
     horizonTableView.delegate = self;
     horizonTableView.dataSource = self;
-    horizonTableView.itemWidth = 140;
     
     [self.view addSubview:horizonTableView];
     _horizonTableView = horizonTableView;
@@ -53,7 +55,7 @@ static NSString *reuseColorViewCellId = @"ColorViewCell";
 - (void)addTableview
 {
     // 添加tableView
-    UITableView *tableView = [[UITableView alloc]initWithFrame:CGRectMake(60, CGRectGetMaxY(_horizonTableView.frame)+10, 200, 320)];
+    UITableView *tableView = [[UITableView alloc]initWithFrame:CGRectMake(60, CGRectGetMaxY(_horizonTableView.frame)+10, 200, CGRectGetWidth(self.view.frame))];
     tableView.transform = CGAffineTransformMakeRotation(M_PI/-2);
     tableView.delegate = self;
     tableView.dataSource = self;
@@ -94,7 +96,7 @@ static NSString *reuseColorViewCellId = @"ColorViewCell";
 {
     TYHorizenTableViewCell *cell = [horizenTableView dequeueReusableCellWithIdentifier:reuseColorViewCellId];
     
-    //  使用了注册函数register 将会自动创建
+    //  使用了注册函数register 将会自动创建 不需要一下代码
     //    if (cell == nil) {
     //        cell = [[TYHorizenTableViewCell alloc]initWithReuseIdentifier:reuseColorViewCellId];
     //        cell.backgroundColor = [UIColor colorWithRed:arc4random()%255/255.0 green:arc4random()%255/255.0 blue:arc4random()%255/255.0 alpha:0.8];

@@ -31,6 +31,7 @@ NS_INLINE BOOL TYPointInPosition(CGFloat point,const TYPosition& position)
     return NO;
 }
 
+// 计算两个range 交集  已经各自的差集
 NSRange TYIntersectionRange(NSRange range1, NSRange range2,NSRange& range1Differ,NSRange& range2Differ)
 {
     // 计算range
@@ -180,6 +181,7 @@ NSRange TYIntersectionRange(NSRange range1, NSRange range2,NSRange& range1Differ
 
 #pragma mark - public method
 
+// reload Data
 - (void)reloadData
 {
     // 重置属性
@@ -211,6 +213,7 @@ NSRange TYIntersectionRange(NSRange range1, NSRange range2,NSRange& range1Differ
     }];
 }
 
+// reuse cell with identifier
 - (TYHorizenTableViewCell *)dequeueReusableCellWithIdentifier:(NSString *)identifier
 {
     NSMutableSet *set = [_reuseCellsDic objectForKey:identifier];
@@ -248,6 +251,7 @@ NSRange TYIntersectionRange(NSRange range1, NSRange range2,NSRange& range1Differ
     return [_visibleCellsDic allValues];
 }
 
+// reigister cell
 - (void)registerClass:(Class)cellClass forCellReuseIdentifier:(NSString *)identifier
 {
     self.reuseIdentifys[identifier] = cellClass;
@@ -258,6 +262,7 @@ NSRange TYIntersectionRange(NSRange range1, NSRange range2,NSRange& range1Differ
     self.reuseIdentifys[identifier] = nib;
 }
 
+// scroll
 - (void)scrollToIndex:(NSInteger)index atPosition:(TYHorizenTableViewPosition)position animated:(BOOL)animated
 {
     if ((index < 0 || index >= _vecCellPositions.size()) && _itemWidth <= 0) {
@@ -295,6 +300,7 @@ NSRange TYIntersectionRange(NSRange range1, NSRange range2,NSRange& range1Differ
     //[self setContentOffset:cellVisibleFrame.origin animated:animated];
 }
 
+// select and deselect cell
 - (void)deSelectCellAtIndex:(NSInteger)index animated:(BOOL)animated
 {
     TYHorizenTableViewCell *unSelectCell = [self cellForIndex:index];

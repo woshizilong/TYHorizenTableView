@@ -2,7 +2,7 @@
 //  TYTextContainer.m
 //  TYAttributedLabelDemo
 //
-//  Created by SunYong on 15/6/4.
+//  Created by tanyang on 15/6/4.
 //  Copyright (c) 2015年 tanyang. All rights reserved.
 //
 
@@ -92,7 +92,7 @@ static inline CGSize CTFramesetterSuggestFrameSizeForAttributedStringWithConstra
     _characterSpacing = 1;
     _linesSpacing = 5;
     _textAlignment = kCTLeftTextAlignment;
-    _lineBreakMode = kCTLineBreakByWordWrapping;
+    _lineBreakMode = kCTLineBreakByCharWrapping;
     _textColor = kTextColor;
     _linkColor = kLinkColor;
     _replaceStringNum = 0;

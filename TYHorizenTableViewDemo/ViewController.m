@@ -45,6 +45,14 @@
     [self.tableView reloadData];
 }
 
+- (NSMutableArray *)itemArray
+{
+    if (_itemArray == nil) {
+        _itemArray = [NSMutableArray array];
+    }
+    return _itemArray;
+}
+
 - (void)addTableView
 {
     // 添加tableView
@@ -55,21 +63,13 @@
     self.tableView = tableView;
 }
 
-- (NSMutableArray *)itemArray
-{
-    if (_itemArray == nil) {
-        _itemArray = [NSMutableArray array];
-    }
-    return _itemArray;
-}
-
 - (void)addTableItems
 {
     [self addTableItemWithTitle:@"colorViewCell" detailText:@"UITableView 和 TYHorizenTableView 滑动对比" destVcClass:[ColorViewController class]];
     
-    [self addTableItemWithTitle:@"customImageCell" detailText:@"自定义Imagecell显示" destVcClass:[CustomViewController class]];
+    [self addTableItemWithTitle:@"customImageCell" detailText:@"自定义Imagecell" destVcClass:[CustomViewController class]];
     
-    [self addTableItemWithTitle:@"AttributedLableCell" detailText:@"自定义Label" destVcClass:[AttribtedLabelController class]];
+    [self addTableItemWithTitle:@"AttributedLableCell" detailText:@"自定义LabelCell" destVcClass:[AttribtedLabelController class]];
 
 }
 

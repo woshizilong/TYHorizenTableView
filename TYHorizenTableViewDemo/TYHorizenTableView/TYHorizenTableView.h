@@ -21,13 +21,14 @@ typedef enum {
 @protocol TYHorizenTableViewDataSource <NSObject>
 @required
 
-// 水平滚动tableview 一共有几个元素item;
+// Total number of items
 - (NSInteger)horizenTableViewOnNumberOfItems:(TYHorizenTableView *)horizenTableView;
 
-// 获取对应下标Index的cell
+//Implementers should *always* try to reuse cells by setting each cell's reuseIdentifier and querying for available reusable cells with dequeueReusableCellWithIdentifier
+// get cell for display
 - (TYHorizenTableViewCell *)horizenTableView:(TYHorizenTableView *)horizenTableView cellForItemAtIndex:(NSInteger)index;
 
-// 获取可变宽度
+// Variable width support
 - (CGFloat)horizenTableView:(TYHorizenTableView *)horizenTableView widthForItemAtIndex:(NSInteger)index;
 
 @end
@@ -56,60 +57,36 @@ typedef enum {
 @property (nonatomic, assign) id<TYHorizenTableViewDataSource>  dataSource;
 @property (nonatomic, assign) id<TYHorizenTableViewDelegate>    delegate;
 #pragma clang diagnostic pop
-
-@property (nonatomic, assign) CGFloat           itemWidth;    // item的宽度
+@property (nonatomic, assign) CGFloat           itemWidth;    // item的宽度 设置会优化
 @property (nonatomic, assign) CGFloat           itemSpacing;  // item之间间隔
 @property (nonatomic, assign) UIEdgeInsets      edgeInsets;   // 四边间距
 @property (nonatomic, assign) NSInteger         maxReuseCount;// 最大可重用cell数 默认2
 
-/**
- *  从缓冲池获取cell
- */
+// 从缓冲池获取cell
 - (id)dequeueReusableCellWithIdentifier:(NSString *)identifier;
 
-/**
- *  注册cell 以便自动重用 cell初始化 awakeFromNib
- */
+// 注册cell 以便自动重用
 - (void)registerNib:(UINib *)nib forCellReuseIdentifier:(NSString *)identifier;
 
-/**
- *  注册cell 以便自动重用 cell初始化 initWithReuseIdentifier
- */
 - (void)registerClass:(Class)cellClass forCellReuseIdentifier:(NSString *)identifier;
 
-/**
- *  滚动指定index位置
- */
+// 滚动指定index位置
 - (void)scrollToIndex:(NSInteger)index atPosition:(TYHorizenTableViewPosition)position animated:(BOOL)animated;
 
-/**
- *  选中指定index cell 默认TYHorizenTableViewPositionNone不滚动
- */
+//  选中，取消选中 index项 cell
 - (void)selectCellAtIndex:(NSInteger)index animated:(BOOL)animated scrollPosition:(TYHorizenTableViewPosition)position;
 
-/**
- *  取消选中 指定index cell
- */
 - (void)deSelectCellAtIndex:(NSInteger)index animated:(BOOL)animated;
 
-/**
- *  获取index项cell,如果cell不可见返回nil
- */
+// 获取index项cell,如果cell不可见返回nil
 - (TYHorizenTableViewCell *)cellForIndex:(NSInteger)index;
 
-/**
- *  获取当可见cells
- */
+// 获取当可见cells
 - (NSArray *)visibleCells;;
 
-/**
- *  重新读取数据
- */
+// 重新读取数据
 - (void)reloadData;
 
-/**
- *  重新读取指定index数据
- */
 - (void)reloadItemAtIndex:(NSInteger)index;
 
 - (void)reloadItemAtIndexSet:(NSIndexSet *)indexSet;

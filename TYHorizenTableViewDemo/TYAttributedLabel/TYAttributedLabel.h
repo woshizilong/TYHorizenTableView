@@ -4,7 +4,7 @@
 //
 //  Created by tanyang on 15/4/8.
 //  Copyright (c) 2015年 tanyang. All rights reserved.
-//  TYAttributedLabel v1.1 verson 
+//  TYAttributedLabel v2.0 verson 
 
 #import <UIKit/UIKit.h>
 #import "TYTextContainer.h"
@@ -150,6 +150,8 @@
  */
 - (void)addLinkWithLinkData:(id)linkData linkColor:(UIColor *)linkColor range:(NSRange )range;
 
+- (void)addLinkWithLinkData:(id)linkData linkColor:(UIColor *)linkColor underLineStyle:(CTUnderlineStyle)underLineStyle range:(NSRange )range;
+
 /**
  *  追加 链接LinkTextStorage
  */
@@ -162,6 +164,8 @@
  *  @param linkData   链接携带的数据
  */
 - (void)appendLinkWithText:(NSString *)linkText linkFont:(UIFont *)linkFont linkColor:(UIColor *)linkColor linkData:(id)linkData;
+
+- (void)appendLinkWithText:(NSString *)linkText linkFont:(UIFont *)linkFont linkColor:(UIColor *)linkColor underLineStyle:(CTUnderlineStyle)underLineStyle linkData:(id)linkData;
 
 @end
 
@@ -261,7 +265,6 @@
 - (void)appendImageWithName:(NSString *)imageName
                        size:(CGSize)size
                   alignment:(TYDrawAlignment)alignment;
-
 
 @end
 

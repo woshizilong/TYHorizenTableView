@@ -21,7 +21,7 @@
 
 - (void)setSelected:(BOOL)selected animated:(BOOL)animated;
 
-// cell放入重用池 可以重置Cell 释放不用内存
+// cell放入重用池 可以重置Cell 释放内存
 - (void)didDequeUnuseCell;
 
 @end

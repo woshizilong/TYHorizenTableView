@@ -31,7 +31,7 @@
 
 + (instancetype)cellWithNib:(UINib *)nib identifier:(NSString *)reuseIdentifier;
 {
-    TYHorizenTableViewCell *cell = [(UINib *)nib instantiateWithOwner:self options:nil].firstObject;
+    TYHorizenTableViewCell *cell = [nib instantiateWithOwner:self options:nil].firstObject;
     cell.identifier = reuseIdentifier;
     return cell;
 }
