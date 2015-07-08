@@ -63,4 +63,5 @@ demo 中附有详细的实现和例子
 
 ### Contact
 如果你发现bug，please pull reqeust me <br>
+如果你的英语好，愿意帮我翻译，please pull reqeust me <br>
 如果你有更好的想法或者建议可以联系我，Email:122074809@qq.com
