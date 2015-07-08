@@ -56,3 +56,7 @@ TYHorizenTableView   用scrollView实现 可重用的水平滚动tableView 极�
 
 @end
 ```
+
+### Contact
+如果你发现bug，please pull reqeust me <br>
+如果你有更好的想法或者建议可以联系我，Email:122074809@qq.com
